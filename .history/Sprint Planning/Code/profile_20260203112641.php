@@ -51,57 +51,6 @@ if(isset($_POST['delete_allergy'])) {
     $delete_stmt->execute();
 }
 
-//beginning of dp
-
-if(isset($_POST['add_preference'])) {
-    $preference_name = trim($_POST['preference_name']);
-
-    $first_query = "SELECT preference_id FROM diet_preferences WHERE preference = ?";
-    $first_result = $conn->prepare($first_query);
-    $first_result->bind_param('s', $preference_name);
-    $first_result->execute();
-    $first_result->store_result();
-
-    if($first_result->num_rows > 0){
-        $first_result->bind_result($preference_id);
-        $first_result->fetch();
-    } else {
-        $insert_query = "INSERT INTO diet_preferences (preference) VALUES (?)";
-        $insert_stmt = $conn->prepare($insert_query);
-        $insert_stmt->bind_param('s', $preference_name);
-        $insert_stmt->execute();
-        $preference_id = $conn->insert_id;
-    }
-    $first_result->close();
-    $exist_query = "SELECT * FROM user_preferences WHERE user_id = ? AND preference_id = ?";
-    $exist_result = $conn->prepare($exist_query);
-    $exist_result->bind_param('ii', $userId, $preference_id);
-    $exist_result->execute();
-    $exist_result->store_result();
-
-    if($exist_result->num_rows > 0){
-        $exist_result->close();
-        echo "<script>alert('Diet preference already exists in your profile.');</script>";
-    }
-    else{
-        $exist_result->close();
-        $second_query = "INSERT INTO user_preferences (user_id, preference_id) VALUES (?, ?)";
-        $second_result = $conn->prepare($second_query);
-        $second_result->bind_param('ii', $userId, $preference_id);
-        $second_result->execute();
-    }
-
-}
-
-if(isset($_POST['delete_preference'])) {
-    $preference_id = $_POST['preference_id'];
-    $delete_query = "DELETE FROM user_preferences WHERE user_id = ? AND preference_id = ?";
-    $delete_stmt = $conn->prepare($delete_query);
-    $delete_stmt->bind_param('ii', $userId, $preference_id);
-    $delete_stmt->execute();
-}
-// end of dp
-
 $sql_query = "
     SELECT al.allergy_id, al.allergy
     FROM user_allergies ual
@@ -133,7 +82,7 @@ $preferences = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
-<html lang ="en"> 
+<html lang ="en">
 
 <head>
     <meta charset="UTF-8">
@@ -151,7 +100,7 @@ $preferences = $result->fetch_all(MYSQLI_ASSOC);
             echo "<p class='profile-name'> Name: " . $_SESSION['name'] . "</p>";
             echo "<p class='profile-email'> Email: " . $_SESSION['email'] . "</p>";
         ?>
-        <div class="allergies-section"> <!-- Beginning of pdp -->
+        <div class="allergies-section">
         <table class="allergies-table">
             <thead>
                 <tr>
@@ -181,44 +130,22 @@ $preferences = $result->fetch_all(MYSQLI_ASSOC);
             </tbody>
         </table>
         </div>
-         <!-- end of dp -->
         <div class="preferences-section">
-            <table class="preferences-table">
-            <thead>
-                <tr>
-                    <th><h3>Dietary Preferences</h3></th>
-                    <th>
-                        <h3>
-                        <form method="POST" style="display:inline;">
-                            <input type="text" name ="preference_name" placeholder="Preference name" required>
-                            <button type="submit" name="add_preference">Add Dietary Preference</button>
-                        </form>
-                        </h3>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($preferences)): ?>
-                    <tr>
-                        <td colspan="2" class="no-preferences">No dietary preferences</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($preferences as $preference): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($preference['preference']); ?></td>
-                            <td>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="preference_id" value="<?php echo $preference['preference_id']; ?>">
-                                    <button type="submit" name="delete_preference">Delete</button>                                          
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+            <h3>Dietary Preferences</h3>
+            <?php if (empty($preferences)): ?>
+                <p class="no-preferences">No dietary preferences</p>
+            <?php else: ?>
+                <table class="preferences-table">
+                    <tbody>
+                        <?php foreach ($preferences as $preference): ?>
+                            <tr>
+                                <td><?php echo ($preference['preference']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
-      
         <div class="back-button-container">
             <button onclick="window.location.href='main_menu.php'">Back to Main Page</button>
     </div>
