@@ -31,7 +31,7 @@ The application aims to simplify meal planning by taking into account dietary re
 
 ## Core Features
 
-### 1. User Account Management
+### 1. User Account Management ✅ Completed
 - User registration and login
 - Profile management
   - Dietary preferences
