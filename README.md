@@ -14,6 +14,7 @@
 |-----|-----------|------|
 | Marie Ella Cambay    |  40284457         |  Full Stack Developper    |
 | Charles Dahan   |  40263717         | Jr. Full Stackl Developper     |
+|  Ilyess Diyane   |   40316188        |  Jr. Full Stack Developper    |
 | Frederic Gagne   | 40278058          | Full Stack Developper     |
 | Pablo Hernandez    | 40246914          | Sr. Full Stack Developper     |
 | Quetin Malichecq-Laroche    | 40285143          |  Scrum Master & Full Stack Developper    | 
