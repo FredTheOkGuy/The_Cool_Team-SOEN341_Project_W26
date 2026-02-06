@@ -21,6 +21,7 @@ if(isset($_POST['register'])){
     else{
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $conn->query("INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$password')");
+        $_SESSION['account_confirmation'] = 'Account successfully created';
     }
 
     header("Location: index.php");

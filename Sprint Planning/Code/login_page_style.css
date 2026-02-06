@@ -123,4 +123,13 @@ p a:hover {
     margin-bottom: 20px;
 }
 
+.confirmation-message{
+    padding: 12px;
+    background: #33a429;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #befd8e;
+    text-align: center;
+    margin-bottom: 20px;
+}
 

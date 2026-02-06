@@ -7,12 +7,21 @@ $errors = [
     'register' => $_SESSION['register_error'] ?? '',
     'retype' => $_SESSION['retype_error'] ?? ''
 ];
+
+$confirmations = [
+    'creation' => $_SESSION['account_confirmation'] ?? ''
+];
+
 $activeForm = $_SESSION['active_form'] ?? 'login';
 
 session_unset();
 
 function showError($error){
     return !empty($error) ? "<p class='error-message'>$error</p>" : '';
+}
+
+function showConfirmation($confirmation){
+    return !empty($confirmation) ? "<p class='confirmation-message'>$confirmation</p>" : '';
 }
 
 function isActiveForm($formName, $activeForm){
@@ -44,6 +53,7 @@ function isActiveForm($formName, $activeForm){
             <form action="login_page_register.php" method="post">
                 <h2>Login</h2>
                 <?= showError($errors['login']);?>
+                <?= showConfirmation($confirmations['creation']);?>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit" name="login">Login</button>
