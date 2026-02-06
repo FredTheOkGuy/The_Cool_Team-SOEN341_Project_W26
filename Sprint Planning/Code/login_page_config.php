@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";   // empty for XAMPP on Mac usually
-$database = "user_db"; // or whatever database name you created in phpMyAdmin
+$database = "users_db"; // or whatever database name you created in phpMyAdmin
 
 $conn = new mysqli($host, $user, $password, $database);
 
