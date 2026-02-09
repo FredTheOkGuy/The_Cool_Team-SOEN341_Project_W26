@@ -18,7 +18,7 @@ body {
     color: black;
 }
 
-a {
+a.profile-btn {
     background: white;
     border-radius: 50%;
     width: 44px;
@@ -33,7 +33,13 @@ a {
     right: 20px;
 }
 
-a:hover {
+a.profile-btn:hover {
     box-shadow: 0 0 20px 8px rgba(0, 128, 0, 0.6);
     scale: 1.2;
+}
+
+.sidebar {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
