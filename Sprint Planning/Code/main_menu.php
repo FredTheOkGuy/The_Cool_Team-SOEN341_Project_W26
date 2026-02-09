@@ -50,6 +50,12 @@
 		</ul>
 	</div>
 
+	<div class="main-content">
+		<div class="container">
+			<h>Schedule</h>
+		</div>
+	</div>
+
 	<a href="profile.php" class="profile-btn" title="Profile" aria-label="Profile">P</a>
 
 </body>
