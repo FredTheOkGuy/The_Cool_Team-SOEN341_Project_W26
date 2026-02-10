@@ -1,5 +1,14 @@
 <?php
-// Simple Main Menu
+session_start();
+
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -41,7 +50,7 @@
 				</a>
 				<span class="tooltip">Recipe Creator</span>
 			</li>
-			<li>
+			<li id="log-out">
 				<a href="log_out.php">
 					<i class='bx bx-log-out' ></i>
 					<span class="links_name">Log Out</span>
