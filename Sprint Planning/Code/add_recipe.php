@@ -15,6 +15,8 @@ if(isset($_POST['save_recipe'])) {
 
     $difficulty = $_POST['difficulty'];
 
+    $meal_type = $_POST['meal_type'];
+
     $calories = intval($_POST['calories']);
 
     $dietary_tags = isset($_POST['dietary_tags']) ? $_POST['dietary_tags'] : [];
@@ -24,9 +26,9 @@ if(isset($_POST['save_recipe'])) {
     $vegan = in_array('vegan', $dietary_tags) ? 1 : 0;
     $vegetarian = in_array('vegetarian', $dietary_tags) ? 1 : 0;
 
-    $recipe_insert_query = "INSERT INTO recipes (user_id, recipe_name, description, prep_time, cook_time, difficulty_level, calories, gmo_free, gluten_free, lactose_free, vegan, vegetarian) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $recipe_insert_query = "INSERT INTO recipes (user_id, recipe_name, description, prep_time, cook_time, difficulty_level, calories, gmo_free, gluten_free, lactose_free, vegan, vegetarian, meal_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $recipe_stmt = $conn->prepare($recipe_insert_query);
-    $recipe_stmt->bind_param('issiisiiiiii', $userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian);
+    $recipe_stmt->bind_param('issiisiiiiiiis', $userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type);
     $recipe_stmt->execute();
     $recipe_id = $conn->insert_id;
 
@@ -66,8 +68,7 @@ if(isset($_POST['save_recipe'])) {
         $recipe_step_result->bind_param('iis', $recipe_id, $step_number, $step);
         $recipe_step_result->execute();
     }
-
-
+    header('Location: recipes.php');
 }
 
 ?>
@@ -136,6 +137,16 @@ if(isset($_POST['save_recipe'])) {
             </select>
         </div>
 
+        <div>
+            <h1>Meal Type</h1>
+            <select name="meal_type" required>
+                <option value="">Select meal type</option>
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+            </select>
+        </div>
+        
         <div>
             <h1>Calories</h1>
             <input type="number" min="0" name="calories" placeholder="Enter calories" required>
