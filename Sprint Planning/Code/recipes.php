@@ -123,7 +123,7 @@ if ($recipes->num_rows > 0) {
                 <a href="edit_recipe.php?recipe_id=' . $recipe_id . '">Edit</a>
                 <form method="POST">
                     <input type="hidden" name="recipe_id" value="' . $recipe_id . '">
-                    <button type="submit" name="delete_recipe" onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</button>
+                    <button type="submit" name="delete_recipe" onclick="return confirm(\'Are you sure you want to delete this recipe?\')">Delete</button>
                 </form>
                 <hr>
             </div>
