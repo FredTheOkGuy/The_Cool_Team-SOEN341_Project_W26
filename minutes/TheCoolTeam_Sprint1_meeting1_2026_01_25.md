@@ -1,7 +1,8 @@
 # Team Meeting Minutes
 
 **Project:** MealMajor  
-**Course:** SOEN 341  
+**Course:** SOEN 341
+**Sprint:** 2  
 **Meeting #:** 1  
 **Date:** 2026-01-25  
 **Duration:** ~70 minutes  
