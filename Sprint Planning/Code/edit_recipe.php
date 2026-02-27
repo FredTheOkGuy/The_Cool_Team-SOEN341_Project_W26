@@ -1,4 +1,6 @@
 <?php
+/*This whole code is legit the same as the add recipes, just we load the values that we already have for the specific
+  recipe (the placeholders becomes the current values) */
 session_start();
 require_once 'login_page_config.php';
 $userId = $_SESSION['user_id'];
@@ -9,6 +11,8 @@ if (!$recipe_id) {
     header('Location: recipes.php');
     exit;
 }
+
+// When the user clicks the save recipe button
 if(isset($_POST['save_recipe'])) {
     $recipe_name        = trim($_POST['recipe_name']);
     $recipe_description = trim($_POST['recipe_description']);
@@ -31,6 +35,8 @@ if(isset($_POST['save_recipe'])) {
     $result->bind_param('ssiisiiiiiissi', $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_id, $userId);
     $result->execute();
 
+    // Since its kind of a pain to edit ingredients (can't simply do the UPDATE keyword), we just delete the ingredients and reinsert them
+    // Same for the steps
     $conn->prepare("DELETE FROM recipe_ingredients WHERE recipe_id = ?")->execute([$recipe_id]);
     $conn->prepare("DELETE FROM recipe_steps WHERE recipe_id = ?")->execute([$recipe_id]);
 
@@ -66,6 +72,8 @@ if(isset($_POST['save_recipe'])) {
     header('Location: recipes.php');
     exit;
 }
+
+// We fetch the information of the recipe (works the same as the display recipes)
 $result = $conn->prepare("SELECT * FROM recipes WHERE recipe_id = ? AND user_id = ?");
 $result->bind_param('ii', $recipe_id, $userId);
 $result->execute();
@@ -94,6 +102,7 @@ while ($row = $step_result->fetch_assoc()) {
 ?>
 
 <!DOCTYPE html>
+<!-- Like said at the beginning, instead of placeholders, we put in the value of the current recipe (loaded in the php section)  -->
 <html lang="en">
 
     <head>
@@ -239,6 +248,7 @@ while ($row = $step_result->fetch_assoc()) {
 
 
 <script>
+    // This section is the exact same as the add recipe
     function checkIngredient(ingredientName) {
         const rows = document.getElementById('ingredients-tbody').getElementsByTagName('tr');
         for (let i = 0; i < rows.length; i++) {

@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Tried to make it after logging out, you can't come back on this page (doesn't work D;)
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -20,6 +21,7 @@ if (!isset($_SESSION['user_id'])) {
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+	<!-- The main menu has a side bar with the different pages we can go to and the profile page on the top right  -->
 	<div class="sidebar">
 		<div class="top">
 			<div class="logo">
@@ -60,6 +62,7 @@ if (!isset($_SESSION['user_id'])) {
 	</div>
 
 	<div class="main-content">
+		<!-- This is where we're gonna add the schedule, right now its just a place holder  -->
 		<div class="container">
 			<h>Schedule</h>
 		</div>
@@ -70,6 +73,7 @@ if (!isset($_SESSION['user_id'])) {
 </body>
 
 <script>
+	// Script for the cool sidebar popping out
 	let btn = document.querySelector('#btn');
 	let sidebar = document.querySelector('.sidebar');
 

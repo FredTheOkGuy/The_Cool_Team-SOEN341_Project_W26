@@ -3,6 +3,7 @@ session_start();
 require_once 'login_page_config.php';
 $userId = $_SESSION['user_id'];
 
+// If delete recipe button is clicked (works the same as the allergies and dp)
 if(isset($_POST['delete_recipe'])) {
     $recipe_id = $_POST['recipe_id'];
     $delete_query = "DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?";
@@ -11,10 +12,12 @@ if(isset($_POST['delete_recipe'])) {
     $delete_stmt->execute();
 }
 
+// Here is for the filtering, searching and sorting
 $search_name = $_GET['search'] ?? '';
 $sort_by = $_GET['sort'] ?? '';
 $cook_time_filter = $_GET['cook_time_filter'] ?? '';
 $prep_time_filter = $_GET['prep_time_filter'] ?? '';
+// Basically a bunch of switch statements to figure our the sorting and filtering
 switch($cook_time_filter) {
     case 'under_15':
         $cook_time_filter = 15;
@@ -49,6 +52,7 @@ switch($prep_time_filter) {
         $prep_time_filter = 1000;
 }
 
+// Here the two variables are for what we're sorting for, and in what order
 switch($sort_by) {
     case 'name_desc':
         $order_by = 'recipe_name';
@@ -79,6 +83,7 @@ switch($sort_by) {
         $order_direction = 'ASC';
 }
 
+// The main query, we will add stuff depending on the searching, filtering and sorting
 $sql_query = "SELECT recipe_id, recipe_name,
               description,
               prep_time,
@@ -94,6 +99,7 @@ $sql_query = "SELECT recipe_id, recipe_name,
               AND prep_time <= $prep_time_filter 
               AND cook_time <= $cook_time_filter";
 
+// The tags and the difficulty
 $filter_gmo_free     = isset($_GET['filter_gmo_free'])     ? 1 : null;
 $filter_gluten_free  = isset($_GET['filter_gluten_free'])  ? 1 : null;
 $filter_lactose_free = isset($_GET['filter_lactose_free']) ? 1 : null;
@@ -104,6 +110,7 @@ $filter_easy_diff   = isset($_GET['easy_diff'])   ? 1 : null;
 $filter_medium_diff = isset($_GET['medium_diff']) ? 1 : null;
 $filter_hard_diff   = isset($_GET['hard_diff'])   ? 1 : null;
 
+// Add the tags and difficulty filters to the query
 if($filter_gmo_free)     $sql_query .= " AND gmo_free = 1";
 if($filter_gluten_free)  $sql_query .= " AND gluten_free = 1";
 if($filter_lactose_free) $sql_query .= " AND lactose_free = 1";
@@ -116,6 +123,7 @@ if($filter_hard_diff)    $sql_query .= " AND difficulty_level = 'Hard'";
 $params = [$userId];
 $types  = "i";
 
+// Here is for the search (% is for wildcard)
 if ($search_name) {
     $sql_query .= " AND recipe_name LIKE ?";
     $params[]   = '%' . $search_name . '%';
@@ -158,11 +166,13 @@ $recipes = $result->get_result();
     <div class="card">
         <h2>My Recipes</h2>
         <div class="recipes-container">
-            <form method="get" action="">
+            <form method="get" action=""> <!-- All in a get method, so we can get the values directly without submitting anything -->
+            <!-- Here is for the searching -->
             <div class="search-section">
                 <h1>Search</h1>
                 <input type="text" name="search" placeholder="Search recipes..." value="<?=htmlspecialchars($_GET['search'] ?? '')?>">
             </div>
+            <!-- Here is for all the sorting (different options) -->
             <div class="sort-section">
             <h1>Sort By</h1>
             <select name="sort" onchange="this.form.submit()">
@@ -175,6 +185,7 @@ $recipes = $result->get_result();
                 <option value="prep_time_asc" <?=($sort_by == 'prep_time_asc') ? 'selected' : ''?>>Prep Time Ascending</option>
             </select>
             </div>
+            <!-- Here is for all the filter section -->
             <div class="filter-section">
             <h1>Filters</h1>
             <select name="prep_time_filter" onchange="this.form.submit()">
@@ -208,6 +219,11 @@ $recipes = $result->get_result();
 
 
             <?php
+            /*
+            Basically here we're gonna go through each recipe for the current user
+            Then for each recipe, were gonna get all the ingredients and steps from that recipe
+            Then we're gonna display all the information of the recipe
+            */
 if ($recipes->num_rows > 0) {
     while ($row = $recipes->fetch_assoc()) {
         $recipe_id = $row['recipe_id'];
@@ -258,8 +274,8 @@ if ($recipes->num_rows > 0) {
                         <span>Calories: ' . htmlspecialchars($row['calories']) . ' cal | </span>
                         <span>Meal Type: ' . htmlspecialchars($row['meal_type']) . '</span>                     
                     </div>
-                    <div class="recipe-ingredients">' . $ingredients_display . '</div>
                     <div class="recipe-tags">' . $tags_display . '</div>
+                    <div class="recipe-ingredients">' . $ingredients_display . '</div>
                     <div class="recipe-steps">' . $steps_display . '</div>
             </div>
 
@@ -284,6 +300,7 @@ if ($recipes->num_rows > 0) {
     </div>
 
     <script>
+        // Script function for cool hidden display (when you click the recipe it becomes bigger with all the information)
         function toggleRecipe(element) {
             element.classList.toggle('open');
         }

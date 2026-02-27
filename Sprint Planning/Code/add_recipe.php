@@ -3,7 +3,9 @@ session_start();
 require_once 'login_page_config.php';
 $userId = $_SESSION['user_id'];
 
+// If the save recipe button was pressed, then add the info in the database
 if(isset($_POST['save_recipe'])) {
+    // First we get all the info and save it to seperate variables
     $recipe_name = trim($_POST['recipe_name']);
     $recipe_description = trim($_POST['recipe_description']);
 
@@ -42,10 +44,11 @@ if(isset($_POST['save_recipe'])) {
         $ingredient_result->execute();
         $ingredient_result->store_result();
 
+        // If the ingredient already exists, then we don't need to add it to the ingredient table
         if($ingredient_result->num_rows > 0){
             $ingredient_result->bind_result($ingredient_id);
             $ingredient_result->fetch();
-        } else {
+        } else { // If it doesn't, then we add it to the ingredient table
             $insert_query = "INSERT INTO ingredients (ingredient_name) VALUES (?)";
             $insert_stmt = $conn->prepare($insert_query);
             $insert_stmt->bind_param('s', $ingredient);
@@ -54,12 +57,14 @@ if(isset($_POST['save_recipe'])) {
         }
         $ingredient_result->close();
 
+        // Then we add the ingredient to the recipe_ingredients (with its associated recipe id)
         $recipe_ingredient_insert_query = "INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES (?, ?)";
         $recipe_ingredient_result = $conn->prepare($recipe_ingredient_insert_query);
         $recipe_ingredient_result->bind_param('ii', $recipe_id, $ingredient_id);
         $recipe_ingredient_result->execute();
     }
 
+    // Then we add te steps
     foreach($recipe_steps as $index => $step){
         $step = trim($step);
         $recipe_step_insert_query = "INSERT INTO recipe_steps (recipe_id, step_number, step_instruction) VALUES (?, ?, ?)";
@@ -68,6 +73,7 @@ if(isset($_POST['save_recipe'])) {
         $recipe_step_result->bind_param('iis', $recipe_id, $step_number, $step);
         $recipe_step_result->execute();
     }
+    // When we add a recipe, after adding it, we head back to the recipes
     header('Location: recipes.php');
 }
 
@@ -90,6 +96,7 @@ if(isset($_POST['save_recipe'])) {
     <div class="title">The Cool Team App</div>
   </div>
 
+  <!-- Simple back button  -->
   <div class="back-button-container">
     <button class="btn btn-primary" onclick="window.location.href='recipes.php'">
       Back to Recipes
@@ -133,7 +140,9 @@ if(isset($_POST['save_recipe'])) {
             <tbody id="ingredients-tbody"></tbody>
           </table>
         </div>
-
+        <!-- When we add an ingredient, we're gonna add it into the table, but also here, because the php won't
+             be able to take from the table, so we're kind of saving it into a "list", where we're putting it in
+             JSON format for the php -->
         <input type="hidden" name="ingredients" id="ingredients_input">
       </section>
 
@@ -208,7 +217,7 @@ if(isset($_POST['save_recipe'])) {
 
         <input type="hidden" name="steps" id="steps_input">
       </section>
-
+      <!-- Exact same thing as the ingredients -->
       <button type="submit" name="save_recipe" class="btn btn-primary btn-block">
         Save Recipe
       </button>
@@ -222,7 +231,7 @@ if(isset($_POST['save_recipe'])) {
 </html>
 
 <script>
-
+    // This script is to check that the ingredient is not already added (We don't want the same ingredient twice in our recipe)
     function checkIngredient(ingredientName){
         const tbody = document.getElementById('ingredients-tbody');
         const rows = tbody.getElementsByTagName('tr');
@@ -234,10 +243,12 @@ if(isset($_POST['save_recipe'])) {
         return false;
     }
 
+    // This is to remove the ingredient
     function removeIngredient(btn){
         btn.closest('tr').remove();
     }
 
+    // When the add_ingredient button is clicked, we call it and we add the ingredient to the table and the list
     document.getElementById('add_ingredient').addEventListener('click', function() {
         const ingredientInput = document.getElementById('ingredient_name');
         const ingredientName = ingredientInput.value.trim();
@@ -253,6 +264,7 @@ if(isset($_POST['save_recipe'])) {
         }
     });
 
+    // This is the same thing as the ingredients but for the steps
     document.getElementById('add_step').addEventListener('click', function() {
         const stepInput = document.getElementById('step_name');
         const stepName = stepInput.value.trim();
@@ -272,6 +284,8 @@ if(isset($_POST['save_recipe'])) {
         btn.closest('tr').remove();
     }
 
+    // We're gonna put the ingredients and steps as JSONs to be able to aprse it when adding it to the data base
+    // This event happens when the form (add recipe) is submitted
     document.getElementById('main-form').addEventListener('submit', function(event) {
         const ingredientRows = document.getElementById('ingredients-tbody').getElementsByTagName('tr');
         const ingredients = Array.from(ingredientRows).map(row => row.cells[0].innerText);

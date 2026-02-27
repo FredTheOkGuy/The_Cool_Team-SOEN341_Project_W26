@@ -3,19 +3,24 @@ session_start();
 require_once 'login_page_config.php';
 $userId = $_SESSION['user_id'];
 
+// If we add an allergy (add allergy button as clicked)
 if(isset($_POST['add_allergy'])) {
+    // Get the name of the allergy
     $allergy_name = trim($_POST['allergy_name']);
 
+    // Creat SQL query to add the allergy to the table
     $first_query = "SELECT allergy_id FROM allergies WHERE allergy = ?";
     $first_result = $conn->prepare($first_query);
     $first_result->bind_param('s', $allergy_name);
     $first_result->execute();
     $first_result->store_result();
 
+    // Since there's two tables for allergies (allergies and user_allergies, we need to make sure that alelrgy doesn't already exist)
+    // If it already exist, get its id
     if($first_result->num_rows > 0){
         $first_result->bind_result($allergy_id);
         $first_result->fetch();
-    } else {
+    } else { // Otherwise add it to the allergies table
         $insert_query = "INSERT INTO allergies (allergy) VALUES (?)";
         $insert_stmt = $conn->prepare($insert_query);
         $insert_stmt->bind_param('s', $allergy_name);
@@ -23,6 +28,7 @@ if(isset($_POST['add_allergy'])) {
         $allergy_id = $conn->insert_id;
     }
     $first_result->close();
+    // Then associate the allergy wih the user (using ids)
     $exist_query = "SELECT * FROM user_allergies WHERE user_id = ? AND allergy_id = ?";
     $exist_result = $conn->prepare($exist_query);
     $exist_result->bind_param('ii', $userId, $allergy_id);
@@ -43,6 +49,7 @@ if(isset($_POST['add_allergy'])) {
 
 }
 
+// Simply delete the allergy (if delete allergy button is pressed)
 if(isset($_POST['delete_allergy'])) {
     $allergy_id = $_POST['allergy_id'];
     $delete_query = "DELETE FROM user_allergies WHERE user_id = ? AND allergy_id = ?";
@@ -53,6 +60,7 @@ if(isset($_POST['delete_allergy'])) {
 
 //beginning of dp
 
+// Exact same thing as allergies just for the diet preferences
 if(isset($_POST['add_preference'])) {
     $preference_name = trim($_POST['preference_name']);
 
@@ -102,6 +110,8 @@ if(isset($_POST['delete_preference'])) {
 }
 // end of dp
 
+/* This section is for displaying the allergies and preferences
+   Basically we get the information (ids) of allergies and preferences using a query with the user id*/
 $sql_query = "
     SELECT al.allergy_id, al.allergy
     FROM user_allergies ual
@@ -183,6 +193,7 @@ $preferences = $result->fetch_all(MYSQLI_ASSOC);
             </div>
 
             <div class="list">
+                <!-- Here we use the ids we got at the beginning and fetch them from the tables and display them -->
                 <?php if (empty($allergies)): ?>
                     <div class="list-item">
                         <span>No allergies yet</span>

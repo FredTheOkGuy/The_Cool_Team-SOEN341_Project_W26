@@ -2,28 +2,34 @@
 
 session_start();
 
+// Different type of errors we can expect
 $errors = [
     'login' => $_SESSION['login_error'] ?? '',
     'register' => $_SESSION['register_error'] ?? '',
     'retype' => $_SESSION['retype_error'] ?? ''
 ];
 
+// Different confirmations we can expect (we only have one rn D;)
 $confirmations = [
     'creation' => $_SESSION['account_confirmation'] ?? ''
 ];
 
+// To switch between the registration and login form
 $activeForm = $_SESSION['active_form'] ?? 'login';
 
 session_unset();
 
+// This function shows the error
 function showError($error){
     return !empty($error) ? "<p class='error-message'>$error</p>" : '';
 }
 
+// This function shows the confirmation (legit same thing as error)
 function showConfirmation($confirmation){
     return !empty($confirmation) ? "<p class='confirmation-message'>$confirmation</p>" : '';
 }
 
+// This is for the current active form )login or register)
 function isActiveForm($formName, $activeForm){
     return $formName === $activeForm ? 'active' : '';
 }
@@ -49,6 +55,7 @@ function isActiveForm($formName, $activeForm){
 
 
     <div class="container">
+    <!-- This is the login form (we see the isActiveForm function call, this is to see which is active, so which one we're displaying) -->
         <div class="form-box <?= isActiveForm('login', $activeForm); ?>" id="login-form">
             <form action="login_page_register.php" method="post">
                 <h2>Login</h2>
@@ -57,10 +64,11 @@ function isActiveForm($formName, $activeForm){
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit" name="login">Login</button>
+                <!-- The on click will call a function that will make the register form the active form  -->
                 <p>Not already signed up? Sign up <a href="#" onclick="showForm('register-form')">here</a></p>             
             </form>
         </div>
-
+        <!-- This is the registration form  -->
         <div class="form-box <?= isActiveForm('register', $activeForm); ?>" id="register-form">
             <form action="login_page_register.php" method="post">
                 <h2>Register</h2>
@@ -71,10 +79,12 @@ function isActiveForm($formName, $activeForm){
                 <input type="password" name="password" placeholder="Password" required>
                 <input type="password" name="retype_password" placeholder="Confirm password" required>
                 <button type="submit" name="register">Register</button>
+                <!-- The on click will call a function that will make the login form the active form  -->
                 <p>Already have an account? Login <a href="#" onclick="showForm('login-form')">here</a></p>             
             </form>
         </div>
     </div>
+<!-- Include the script to take care of active form  -->  
 <script src="login_page_script.js"></script>
 </body>
 
