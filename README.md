@@ -39,7 +39,7 @@ The application aims to simplify meal planning by taking into account dietary re
 
 ---
 
-### 2. Recipe Management
+### 2. Recipe Management ✅ Completed
 - Create, edit, and delete recipes
 - Recipe attributes:
   - Ingredients
