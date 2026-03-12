@@ -11,14 +11,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-if (!isset($_SESSION["breakfast_recipes"]) || isset($_POST["reset_recipes"])) {
+if (!isset($_SESSION["breakfast_recipes"])) {
 
     $recipe_breakfast_query = "
         SELECT recipe_id 
         FROM recipes 
         WHERE user_id = ? AND meal_type = 'breakfast'
-        ORDER BY RAND()
-        LIMIT 7
     ";
 
     $recipe_breakfast_stmt = $conn->prepare($recipe_breakfast_query);
@@ -40,8 +38,6 @@ if (!isset($_SESSION["lunch_recipes"]) || isset($_POST["reset_recipes"])) {
         SELECT recipe_id 
         FROM recipes 
         WHERE user_id = ? AND meal_type = 'lunch'
-        ORDER BY RAND()
-        LIMIT 7
     ";
 
     $recipe_lunch_stmt = $conn->prepare($recipe_lunch_query);
@@ -63,8 +59,6 @@ if (!isset($_SESSION["dinner_recipes"]) || isset($_POST["reset_recipes"])) {
         SELECT recipe_id 
         FROM recipes 
         WHERE user_id = ? AND meal_type = 'dinner'
-        ORDER BY RAND()
-        LIMIT 7
     ";
 
     $recipe_dinner_stmt = $conn->prepare($recipe_dinner_query);
@@ -86,8 +80,6 @@ if (!isset($_SESSION["snack_recipes"]) || isset($_POST["reset_recipes"])) {
         SELECT recipe_id 
         FROM recipes 
         WHERE user_id = ? AND meal_type = 'snack'
-        ORDER BY RAND()
-        LIMIT 7
     ";
 
     $recipe_snack_stmt = $conn->prepare($recipe_snack_query);
