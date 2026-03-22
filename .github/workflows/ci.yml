@@ -12,7 +12,7 @@ jobs:
 
     env:
       MYSQL_DATABASE: mealmajor_test
-      MYSQL_USER: root
+      MYSQL_USER: test
       MYSQL_ALLOW_EMPTY_PASSWORD: yes
       MYSQL_PASSWORD: 1313
       MYSQL_ROOT_PASSWORD: 1414
@@ -40,7 +40,7 @@ jobs:
 
       - name: Wait for MySQL to become healthy
         run: |
-          for i in {1..10}; do
+          for i in {1..24}; do
             STATUS=$(docker inspect --format='{{json .State.Health.Status}}' mysql-test)
             if [ "$STATUS" = "\"healthy\"" ]; then
               echo "MySQL is healthy."
