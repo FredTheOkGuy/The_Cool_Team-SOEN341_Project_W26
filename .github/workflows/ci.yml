@@ -9,10 +9,6 @@ on:
 jobs:
   php-ci:
     runs-on: ubuntu-latest
-    container: 
-      image: composer:latest
-      volumes:
-        - ${{github.workspace}}:/app
 
     env:
       MYSQL_DATABASE: mealmajor_test
