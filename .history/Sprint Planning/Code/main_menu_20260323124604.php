@@ -13,9 +13,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Same error function used in the login page, shoutout Fred
-function showError($error){
-    return !empty($error) ? "<p class='error-message'>$error</p>" : '';
-}
+//function showError($error){
+//    return !empty($error) ? "<p class='error-message'>$error</p>" : '';
+//}
 
 //Weekly schedule
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -55,9 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // Grab and clear the error, same pattern as index.php
 $errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
 unset($_SESSION['duplicate_error']);
-
-// *CHARLES DON"T FORGET TO DESTROY THIS
-var_dump($errors);
 
 
 $meals_query = $conn->prepare(" 

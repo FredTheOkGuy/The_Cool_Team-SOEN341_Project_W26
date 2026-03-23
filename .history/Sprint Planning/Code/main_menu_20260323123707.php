@@ -53,11 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // Grab and clear the error, same pattern as index.php
-$errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
-unset($_SESSION['duplicate_error']);
-
-// *CHARLES DON"T FORGET TO DESTROY THIS
-var_dump($errors);
+$errors = ['schedule' => $_SESSION['schedule_error'] ?? ''];
+unset($_SESSION['schedule_error']);
 
 
 $meals_query = $conn->prepare(" 

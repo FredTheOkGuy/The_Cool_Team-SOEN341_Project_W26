@@ -56,9 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 $errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
 unset($_SESSION['duplicate_error']);
 
-// *CHARLES DON"T FORGET TO DESTROY THIS
-var_dump($errors);
-
 
 $meals_query = $conn->prepare(" 
     SELECT ms.schedule_id, ms.day_of_week, ms.meal_type, r.recipe_name

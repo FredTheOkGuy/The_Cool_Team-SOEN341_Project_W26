@@ -53,11 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // Grab and clear the error, same pattern as index.php
-$errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
-unset($_SESSION['duplicate_error']);
-
-// *CHARLES DON"T FORGET TO DESTROY THIS
-var_dump($errors);
+$errors = ['schedule' => $_SESSION['schedule_error'] ?? ''];
+unset($_SESSION['schedule_error']);
 
 
 $meals_query = $conn->prepare(" 
@@ -151,7 +148,11 @@ $today = date('l');
 	<div class="main-content">
     <div class="schedule-wrapper">
         <h2 class="schedule-title">Weekly Meal Schedule</h2>
-		<?= showError($errors['schedule']) ?>
+		<?php if ($schedule_error): ?>
+    		<div class="schedule-error">
+         		<?= htmlspecialchars($schedule_error) ?>
+    		</div>
+		<?php endif; ?>
         <div class="week-grid">
             <?php foreach ($days as $day): ?>
             <div class="day-col <?= $day === $today ? 'today' : '' ?>">

@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // Grab and clear the error, same pattern as index.php
-$errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
+$errors = ['schedule_er' => $_SESSION['duplicate_error'] ?? ''];
 unset($_SESSION['duplicate_error']);
 
 // *CHARLES DON"T FORGET TO DESTROY THIS
@@ -151,7 +151,7 @@ $today = date('l');
 	<div class="main-content">
     <div class="schedule-wrapper">
         <h2 class="schedule-title">Weekly Meal Schedule</h2>
-		<?= showError($errors['schedule']) ?>
+		<?= showError($errors['schedule_er']) ?>
         <div class="week-grid">
             <?php foreach ($days as $day): ?>
             <div class="day-col <?= $day === $today ? 'today' : '' ?>">

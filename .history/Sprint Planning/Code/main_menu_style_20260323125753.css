@@ -38,7 +38,7 @@ a.profile-btn:hover {
     scale: 1.2;
 }
 
-.sidebar {
+/*.sidebar {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -343,6 +343,4 @@ a.profile-btn:hover {
     margin-bottom: 1rem;
     font-size: 0.85rem;
     text-align: center;
-    display: block;
-    width: 100%;
 }

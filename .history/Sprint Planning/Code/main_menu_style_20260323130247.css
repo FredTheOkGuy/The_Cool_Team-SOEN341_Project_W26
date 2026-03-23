@@ -343,6 +343,17 @@ a.profile-btn:hover {
     margin-bottom: 1rem;
     font-size: 0.85rem;
     text-align: center;
+}
+
+.error-message {
+    background: #ffe5e5;
+    color: #c0392b;
+    border: 1px solid #f5c6c6;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    text-align: center;
     display: block;
     width: 100%;
 }
