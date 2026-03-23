@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 $errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
 unset($_SESSION['duplicate_error']);
 
-// CHARLES DON"T FORGET TO DESTROY THIS
+// *CHARLES DON"T FORGET TO DESTROY THIS
 //var_dump($errors);
 
 
@@ -104,7 +104,7 @@ $today = date('l');
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Main Menu</title>
-    <link rel="stylesheet" href="main_menu_style.css">
+    <link rel="stylesheet" href="main_menu_style.css?=v2s">
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>

@@ -31,7 +31,6 @@ a.profile-btn {
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 200;
 }
 
 a.profile-btn:hover {

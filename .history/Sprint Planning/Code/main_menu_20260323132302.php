@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 $errors = ['schedule' => $_SESSION['duplicate_error'] ?? ''];
 unset($_SESSION['duplicate_error']);
 
-// CHARLES DON"T FORGET TO DESTROY THIS
+// *CHARLES DON"T FORGET TO DESTROY THIS
 //var_dump($errors);
 
 
