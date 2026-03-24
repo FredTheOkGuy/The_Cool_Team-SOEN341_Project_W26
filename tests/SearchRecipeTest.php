@@ -54,6 +54,9 @@ PHP;
 
         copy($this->sourceFile, $dir . '/subject.php');
 
+        file_put_contents($dir . '/api_config.php', "<?php\n");
+        file_put_contents($dir . '/sql_recipe_functions.php', "<?php\n");
+
         $loginPageConfig = <<<'PHP'
 <?php
 
@@ -98,7 +101,6 @@ class FakeStmt
 
     public function get_result()
     {
-        // Simulate a search result for "pasta"
         if (stripos($this->sql, 'FROM recipes') !== false) {
             return new FakeResultSet([
                 [
@@ -125,7 +127,6 @@ $conn = new FakeConn();
 PHP;
 
         file_put_contents($dir . '/login_page_config.php', $loginPageConfig);
-        file_put_contents($dir . '/sql_recipe_functions.php', "<?php\n");
 
         return $dir;
     }
