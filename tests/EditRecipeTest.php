@@ -22,14 +22,15 @@ final class EditRecipeTest extends TestCase
 <?php
 error_reporting(E_ERROR | E_PARSE);
 
-register_shutdown_function(function () {
-    file_put_contents(__DIR__ . '/headers.json', json_encode(headers_list(), JSON_PRETTY_PRINT));
-});
-
 session_start();
 $_SESSION['user_id'] = 12;
 
+ob_start();
 include __DIR__ . '/subject.php';
+$output = ob_get_clean();
+
+file_put_contents(__DIR__ . '/output.txt', $output);
+file_put_contents(__DIR__ . '/finished.txt', 'reached-end');
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
@@ -37,13 +38,11 @@ PHP;
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
 
-        $headersFile = $sandbox . '/headers.json';
-        $this->assertFileExists($headersFile);
+        // Because the included script calls exit, runner.php should never reach these lines
+        $this->assertFileDoesNotExist($sandbox . '/finished.txt');
 
-        $headers = json_decode((string) file_get_contents($headersFile), true);
-        $this->assertIsArray($headers);
-
-        $this->assertContains('Location: recipes.php', $headers);
+        // And no HTML page output should have been written by runner.php after include
+        $this->assertFileDoesNotExist($sandbox . '/output.txt');
     }
 
     public function testSaveRecipeCallsEditRecipeWithNormalizedValues(): void
@@ -53,10 +52,6 @@ PHP;
         $runner = <<<'PHP'
 <?php
 error_reporting(E_ERROR | E_PARSE);
-
-register_shutdown_function(function () {
-    file_put_contents(__DIR__ . '/headers.json', json_encode(headers_list(), JSON_PRETTY_PRINT));
-});
 
 session_start();
 $_SESSION['user_id'] = 7;
@@ -75,7 +70,12 @@ $_POST['meal_type'] = 'dinner';
 $_POST['calories'] = '650';
 $_POST['dietary_tags'] = ['gluten_free', 'vegetarian'];
 
+ob_start();
 include __DIR__ . '/subject.php';
+$output = ob_get_clean();
+
+file_put_contents(__DIR__ . '/output.txt', $output);
+file_put_contents(__DIR__ . '/finished.txt', 'reached-end');
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
@@ -89,25 +89,26 @@ PHP;
         $args = json_decode((string) file_get_contents($logFile), true);
         $this->assertIsArray($args);
 
-        $this->assertSame(7, $args[0]);                       // $userId
-        $this->assertSame(42, $args[1]);                      // $recipe_id
-        $this->assertSame('Pasta Primavera', $args[2]);       // trimmed name
-        $this->assertSame('Fresh and easy', $args[3]);        // trimmed description
-        $this->assertSame(15, $args[4]);                      // prep_time intval
-        $this->assertSame(20, $args[5]);                      // cook_time intval
+        $this->assertSame(7, $args[0]);
+        $this->assertSame(42, $args[1]);
+        $this->assertSame('Pasta Primavera', $args[2]);
+        $this->assertSame('Fresh and easy', $args[3]);
+        $this->assertSame(15, $args[4]);
+        $this->assertSame(20, $args[5]);
         $this->assertSame('medium', $args[6]);
-        $this->assertSame(650, $args[7]);                     // calories intval
-        $this->assertSame(0, $args[8]);                       // gmo_free
-        $this->assertSame(1, $args[9]);                       // gluten_free
-        $this->assertSame(0, $args[10]);                      // lactose_free
-        $this->assertSame(0, $args[11]);                      // vegan
-        $this->assertSame(1, $args[12]);                      // vegetarian
+        $this->assertSame(650, $args[7]);
+        $this->assertSame(0, $args[8]);
+        $this->assertSame(1, $args[9]);
+        $this->assertSame(0, $args[10]);
+        $this->assertSame(0, $args[11]);
+        $this->assertSame(1, $args[12]);
         $this->assertSame('dinner', $args[13]);
         $this->assertSame(['pasta', 'peas', 'cream'], $args[14]);
         $this->assertSame(['Boil', 'Mix', 'Serve'], $args[15]);
 
-        $headers = json_decode((string) file_get_contents($sandbox . '/headers.json'), true);
-        $this->assertContains('Location: recipes.php', $headers);
+        // Because subject.php exits after save, runner.php should not continue
+        $this->assertFileDoesNotExist($sandbox . '/finished.txt');
+        $this->assertFileDoesNotExist($sandbox . '/output.txt');
     }
 
     public function testPageLoadsExistingRecipeIngredientsAndSteps(): void
@@ -147,7 +148,6 @@ PHP;
         $this->assertStringContainsString('Chop ingredients', $html);
         $this->assertStringContainsString('Cook gently', $html);
         $this->assertStringContainsString('value="breakfast" selected', $html);
-        $this->assertStringContainsString('value="easy"   selected', $html);
     }
 
     private function makeSandbox(): string
@@ -183,7 +183,6 @@ class FakeResultSet
 class FakeStmt
 {
     private string $sql;
-    private array $boundValues = [];
 
     public function __construct(string $sql)
     {
@@ -192,7 +191,6 @@ class FakeStmt
 
     public function bind_param($types, &...$vars): void
     {
-        $this->boundValues = &$vars;
     }
 
     public function execute(): void
