@@ -10,7 +10,7 @@ final class SearchRecipeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sourceFile = __DIR__ . '/../Sprint Planning/Code/recipe_creation.php';
+        $this->sourceFile = __DIR__ . '/../Sprint Planning/Code/recipe.php';
         $this->assertFileExists($this->sourceFile, 'Update $sourceFile to the real search page path.');
     }
 
