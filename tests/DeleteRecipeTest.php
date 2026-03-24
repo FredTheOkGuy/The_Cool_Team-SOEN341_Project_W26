@@ -5,7 +5,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 final class DeleteRecipeTest extends TestCase
-{
+{ 
     private string $sourceFile;
 
     protected function setUp(): void
