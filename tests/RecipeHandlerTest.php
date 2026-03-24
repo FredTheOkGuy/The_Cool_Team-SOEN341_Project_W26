@@ -46,6 +46,7 @@ PHP;
         $this->assertSame(['tomato', 'rice', 'beans'], $data['recipe_ingredients']);
         $this->assertSame('dinner', $data['meal_type']);
 
+        $this->assertIsArray($data['createRecipeArgs']);
         $this->assertSame(99, $data['createRecipeArgs'][0]);
         $this->assertSame('tomato, rice, beans', $data['createRecipeArgs'][1]);
         $this->assertSame('dinner', $data['createRecipeArgs'][2]);
@@ -77,6 +78,7 @@ PHP;
         $data = $this->runRunnerAndDecodeJson($sandbox . '/runner.php');
 
         $this->assertSame([], $data['recipe_ingredients']);
+        $this->assertIsArray($data['createRecipeArgs']);
         $this->assertSame('', $data['createRecipeArgs'][1]);
         $this->assertSame('lunch', $data['createRecipeArgs'][2]);
     }
@@ -114,20 +116,14 @@ PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
 
-        exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php') . ' 2>&1', $output, $exitCode);
-
-        $this->assertSame(
-            0,
-            $exitCode,
-            "Runner failed.\nOutput:\n" . implode("\n", $output)
-        );
+        $this->runRunner($sandbox . '/runner.php');
 
         $logFile = $sandbox . '/addRecipe_log.json';
-        $this->assertFileExists($logFile, 'addRecipe was not called.');
+        $this->assertFileExists($logFile, 'addRecipe() was not called.');
 
         $log = json_decode((string) file_get_contents($logFile), true);
+        $this->assertIsArray($log, 'addRecipe_log.json did not contain valid JSON.');
 
-        $this->assertIsArray($log);
         $this->assertSame(7, $log[0]);
         $this->assertSame('Protein Oats', $log[1]);
         $this->assertSame('Quick breakfast', $log[2]);
@@ -145,28 +141,27 @@ PHP;
         $this->assertSame(['mix', 'cook'], $log[14]);
     }
 
+    private function runRunner(string $runnerPath): string
+    {
+        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($runnerPath) . ' 2>&1';
+        $output = shell_exec($command);
+
+        $this->assertNotNull(
+            $output,
+            'Runner produced no output. Command: ' . $command
+        );
+
+        return (string) $output;
+    }
+
     private function runRunnerAndDecodeJson(string $runnerPath): array
     {
-        exec(PHP_BINARY . ' ' . escapeshellarg($runnerPath) . ' 2>&1', $output, $exitCode);
-        $rawOutput = implode("\n", $output);
-
-        $this->assertSame(
-            0,
-            $exitCode,
-            "Runner failed.\nOutput:\n" . $rawOutput
-        );
-
-        $this->assertNotSame(
-            '',
-            trim($rawOutput),
-            'Runner returned empty output instead of JSON.'
-        );
-
-        $data = json_decode($rawOutput, true);
+        $output = $this->runRunner($runnerPath);
+        $data = json_decode($output, true);
 
         $this->assertIsArray(
             $data,
-            "Runner did not return valid JSON.\nOutput was:\n" . $rawOutput
+            "Runner did not return valid JSON.\nRaw output was:\n" . $output
         );
 
         return $data;
