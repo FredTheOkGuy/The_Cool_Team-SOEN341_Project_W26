@@ -32,8 +32,3 @@ jobs:
           else
             echo "No composer.json found; skipping composer install."
           fi
-
-      - name: Empty tests (placeholder)
-        run: |
-          echo "No tests yet — placeholder step."
-          exit 0
