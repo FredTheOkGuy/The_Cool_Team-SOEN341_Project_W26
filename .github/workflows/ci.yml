@@ -10,16 +10,57 @@ jobs:
   php-ci:
     runs-on: ubuntu-latest
 
+    env:
+      MYSQL_DATABASE: dby41clch96chw
+      MYSQL_USER: ucuvhcnpfcavh
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_PASSWORD: 1313
+      MYSQL_ROOT_PASSWORD: 1414
+      MYSQL_PORT: 3306
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          tools: composer
+      - name: Start MySQL container
+        run: |
+          docker run -d \
+            --name mysql-test \
+            -e MYSQL_DATABASE="${MYSQL_DATABASE}" \
+            -e MYSQL_USER="${MYSQL_USER}" \
+            -e MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+            -p 3306:3306 \
+            -v "${{ github.workspace }}/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro" \
+            --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=12 \
+            mysql:8.0
 
+      - name: Wait for MySQL to become healthy
+        run: |
+          for i in {1..24}; do
+            STATUS=$(docker inspect --format='{{json .State.Health.Status}}' mysql-test)
+            if [ "$STATUS" = "\"healthy\"" ]; then
+              echo "MySQL is healthy."
+              exit 0
+            fi
+            echo "Waiting for MySQL... current status: $STATUS"
+            sleep 5
+          done
+
+          echo "MySQL did not become healthy in time."
+          docker logs mysql-test
+          exit 1
+
+      - name: Show initialized databases
+        run: |
+          docker exec mysql-test mysql \
+            -uroot \
+            -p"${MYSQL_ROOT_PASSWORD}" \
+            -e "SHOW DATABASES;"
+      
       - name: Validate PHP syntax (basic sanity)
         run: |
           echo "Running syntax check (non-fatal for missing files)..."
@@ -32,3 +73,14 @@ jobs:
           else
             echo "No composer.json found; skipping composer install."
           fi
+
+      - name: Running phpunit
+        run: ./vendor/bin/phpunit tests
+
+      - name: Dump MySQL logs on failure
+        if: failure()
+        run: docker logs mysql-test
+
+      - name: Stop MySQL container
+        if: always()
+        run: docker rm -f mysql-test
