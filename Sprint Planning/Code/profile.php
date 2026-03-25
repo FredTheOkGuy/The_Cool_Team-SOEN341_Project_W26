@@ -134,11 +134,29 @@ $sql_query = "
     ORDER BY dp.preference
 ";
 
+// Calorie goal stuff
 $stmt = $conn->prepare($sql_query);
-$stmt->bind_param('i', $userId);  // 'i' for integer
+$stmt->bind_param('i', $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $preferences = $result->fetch_all(MYSQLI_ASSOC);
+
+if(isset($_POST['set_goal'])){
+    $daily_goal = intval($_POST['daily_goal']);
+    $goal_stmt = $conn->prepare("
+        INSERT INTO calorie_goals (user_id, daily_goal)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE daily_goal = ?
+    ");
+    $goal_stmt->bind_param('iii', $userId, $daily_goal, $daily_goal);
+    $goal_stmt->execute();
+}
+
+$goal_query = $conn->prepare("SELECT daily_goal FROM calorie_goals WHERE user_id = ?");
+$goal_query->bind_param('i', $userId);
+$goal_query->execute();
+$goal_result = $goal_query->get_result()->fetch_assoc();
+$current_goal = $goal_result ? $goal_result['daily_goal'] : null;
 
 ?>
 
@@ -243,7 +261,25 @@ $preferences = $result->fetch_all(MYSQLI_ASSOC);
                 <?php endif; ?>
             </div>
         </div>
+        <!-- ===== Calorie Goal ===== -->
+        <div class="card">
+            <h3>Daily Calorie Goal</h3>
 
+            <?php if ($current_goal): ?>
+                <div class="list-item">
+                    <span>Current goal: <strong><?= $current_goal ?> kcal</strong></span>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" class="row">
+                <input type="number" name="daily_goal" placeholder="e.g. 2000"
+                    min="500" max="9999" required
+                    value="<?= $current_goal ?? '' ?>">
+                <button type="submit" name="set_goal" class="btn btn-primary">
+                    <?= $current_goal ? 'Update Goal' : 'Set Goal' ?>
+                </button>
+            </form>
+        </div>
     </section>
 </main>
 
