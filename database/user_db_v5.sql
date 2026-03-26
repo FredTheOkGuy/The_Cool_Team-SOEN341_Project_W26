@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 26, 2026 at 01:29 PM
+-- Generation Time: Mar 26, 2026 at 02:11 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.30
 
@@ -64,7 +64,7 @@ CREATE TABLE `calorie_goals` (
 --
 
 INSERT INTO `calorie_goals` (`goal_id`, `user_id`, `daily_goal`) VALUES
-(1, 4, 1000);
+(1, 4, 2500);
 
 -- --------------------------------------------------------
 
@@ -106,6 +106,8 @@ INSERT INTO `ingredients` (`ingredient_id`, `ingredient_name`) VALUES
 (11, '2 lbs beef roast'),
 (12, '2 tablespoons salt'),
 (13, '2 teaspoons salt'),
+(26, 'Bacon'),
+(28, 'Beans'),
 (3, 'Beef'),
 (19, 'Blah'),
 (22, 'Bread'),
@@ -118,6 +120,7 @@ INSERT INTO `ingredients` (`ingredient_id`, `ingredient_name`) VALUES
 (8, 'Cornichons'),
 (9, 'Dijon Mustard'),
 (10, 'Egg'),
+(27, 'Eggs'),
 (24, 'Ham'),
 (18, 'Pepper'),
 (15, 'Potatoes'),
@@ -147,8 +150,11 @@ CREATE TABLE `meal_schedule` (
 
 INSERT INTO `meal_schedule` (`schedule_id`, `user_id`, `recipe_id`, `day_of_week`, `meal_type`) VALUES
 (1, 4, 13, 'Sunday', 'Breakfast'),
-(2, 4, 17, 'Sunday', 'Lunch'),
-(3, 4, 21, 'Sunday', 'Dinner');
+(3, 4, 21, 'Sunday', 'Dinner'),
+(4, 4, 19, 'Thursday', 'Breakfast'),
+(5, 4, 14, 'Thursday', 'Lunch'),
+(6, 4, 11, 'Tuesday', 'Breakfast'),
+(7, 4, 20, 'Tuesday', 'Lunch');
 
 -- --------------------------------------------------------
 
@@ -183,10 +189,10 @@ INSERT INTO `recipes` (`recipe_id`, `user_id`, `recipe_name`, `description`, `pr
 (13, 4, 'Salt-Crusted Beef Roast', 'A simple yet flavorful dinner featuring a beef roast encrusted with salt, allowing the natural flavors of the beef to shine through in every bite.', NULL, NULL, 'easy', 450, 1, 1, 1, 0, 0, 'dinner'),
 (14, 4, 'Salted Beef Roast', 'A simple yet flavorful slow-roasted beef seasoned with just salt, allowing the natural richness of the beef to shine through. Perfect for a hearty carnivore dinner.', 15, 120, 'easy', 450, 1, 1, 1, 0, 0, 'dinner'),
 (16, 4, 'Hearty Vegetable and Steak Pot', 'A wholesome and satisfying dinner featuring tender steak alongside roasted potatoes, carrots, and tomatoes, seasoned simply with salt and pepper for a clean and delicious meal.', 15, 45, 'medium', 520, 1, 1, 1, 0, 0, 'dinner'),
-(17, 4, 'Blah Surprise', 'A simple and straightforward lunch made with the available ingredients.', 5, 0, 'easy', 0, 1, 1, 1, 1, 1, 'lunch'),
 (19, 4, 'Blah Cool Stuff Surprise Dinner', 'A mysterious and delightful dinner combining Blah, Cool Stuff, and Surprise into a harmonious meal that respects all dietary preferences and avoids listed allergens.', 10, 20, 'easy', 200, 1, 1, 1, 1, 1, 'dinner'),
 (20, 4, 'Tomato and Ham Cheese Toast', 'A delicious open-faced sandwich featuring toasted bread topped with melted butter, sliced tomatoes, ham, and cheese. Perfect for a quick and satisfying lunch.', 5, 8, 'easy', 385, 0, 0, 0, 0, 0, 'lunch'),
-(21, 4, 'Tomato and Cheese Bread Bake', 'A simple yet satisfying dinner dish featuring layers of toasted bread, fresh tomatoes, and melted cheese. Perfect for a quick and comforting meal.', 10, 20, 'easy', 350, 1, 0, 0, 0, 1, 'dinner');
+(21, 4, 'Tomato and Cheese Bread Bake', 'A simple yet satisfying dinner dish featuring layers of toasted bread, fresh tomatoes, and melted cheese. Perfect for a quick and comforting meal.', 10, 20, 'easy', 350, 1, 0, 0, 0, 1, 'dinner'),
+(22, 4, 'Bacon and Tomato Egg Skillet', 'A hearty breakfast skillet combining crispy bacon, fresh tomatoes, and scrambled eggs cooked together for a savory morning meal.', 10, 15, 'easy', 380, 1, 1, 1, 0, 0, 'breakfast');
 
 -- --------------------------------------------------------
 
@@ -213,7 +219,6 @@ INSERT INTO `recipe_ingredients` (`recipe_ingredient_id`, `recipe_id`, `ingredie
 (17, 12, 6),
 (18, 13, 11),
 (19, 13, 12),
-(28, 17, 19),
 (31, 16, 14),
 (32, 16, 15),
 (33, 16, 16),
@@ -228,7 +233,11 @@ INSERT INTO `recipe_ingredients` (`recipe_ingredient_id`, `recipe_id`, `ingredie
 (56, 20, 22),
 (57, 20, 23),
 (58, 20, 17),
-(59, 20, 24);
+(59, 20, 24),
+(60, 22, 26),
+(61, 22, 27),
+(62, 22, 17),
+(63, 22, 28);
 
 -- --------------------------------------------------------
 
@@ -268,9 +277,6 @@ INSERT INTO `recipe_steps` (`step_id`, `recipe_id`, `step_number`, `step_instruc
 (26, 13, 6, 'Roast in the preheated oven for approximately 90 minutes, or until the internal temperature reaches 145°F (63°C) for medium doneness.'),
 (27, 13, 7, 'Remove the roast from the oven and let it rest for 10-15 minutes before slicing.'),
 (28, 13, 8, 'Slice against the grain and serve immediately.'),
-(45, 17, 1, 'Obtain the Blah ingredient.'),
-(46, 17, 2, 'Prepare the Blah as desired.'),
-(47, 17, 3, 'Serve and enjoy your Blah lunch.'),
 (49, 16, 1, 'Preheat your oven to 400°F (200°C).'),
 (50, 16, 2, 'Wash and chop the potatoes into bite-sized cubes and slice the carrots into rounds.'),
 (51, 16, 3, 'Halve the tomatoes and place them along with the potatoes and carrots on a baking tray.'),
@@ -295,7 +301,12 @@ INSERT INTO `recipe_steps` (`step_id`, `recipe_id`, `step_number`, `step_instruc
 (91, 20, 3, 'Layer ham slices on top of the buttered toast'),
 (92, 20, 4, 'Add tomato slices on top of the ham'),
 (93, 20, 5, 'Top with cheese and return to toaster oven until cheese melts (about 3-4 minutes)'),
-(94, 20, 6, 'Remove and serve immediately while warm');
+(94, 20, 6, 'Remove and serve immediately while warm'),
+(95, 22, 1, 'Cook bacon in a large skillet over medium heat until crispy, about 8 minutes. Remove and chop into pieces.'),
+(96, 22, 2, 'Dice the tomatoes and add them to the skillet with the bacon grease. Cook for 2-3 minutes until softened.'),
+(97, 22, 3, 'Add beans to the skillet and warm through for 2 minutes.'),
+(98, 22, 4, 'Push vegetables to the sides, crack eggs into the center, and scramble until fully cooked, about 3-4 minutes.'),
+(99, 22, 5, 'Mix everything together, add bacon pieces back in, and serve hot.');
 
 -- --------------------------------------------------------
 
@@ -317,7 +328,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `email`, `password`) VALUES
 (4, 'Fred', 'gagne.frederic@hotmail.ca', '$2y$10$910/wniHlrMmrlYcCC/l7O42ZZIv4xpGZBeIbedYL9zMEPCDIWV02'),
 (5, 'Test1', 'testEmail@gmail.com', '$2y$10$SpkbLDclP96V/aLFe14MxORgSlVHptv8VKiHnf/jzea7tGX5IdqgG'),
-(6, 'asd', 'asd@gmail.com', '$2y$10$Cz8NEfPMv5x9M77ByMsQdu94AVtu9x13gz93Z9cwUSjujhrmNMS3i');
+(6, 'asd', 'asd@gmail.com', '$2y$10$Cz8NEfPMv5x9M77ByMsQdu94AVtu9x13gz93Z9cwUSjujhrmNMS3i'),
+(7, 'Jhon', 'jhon@gmail.com', '$2y$10$/R1IiSU60fpNUNfWi/Clb.8HwB.BZLkWXFFvlOYb0lxBnF6cEgBSC');
 
 -- --------------------------------------------------------
 
@@ -338,7 +350,7 @@ INSERT INTO `user_allergies` (`user_id`, `allergy_id`) VALUES
 (4, 1),
 (5, 1),
 (4, 5),
-(4, 9);
+(4, 6);
 
 -- --------------------------------------------------------
 
@@ -358,8 +370,8 @@ CREATE TABLE `user_daily_calories` (
 --
 
 INSERT INTO `user_daily_calories` (`id`, `user_id`, `log_date`, `total_calories`) VALUES
-(1, 4, '2026-03-25', 1150),
-(2, 4, '2026-03-25', 1150);
+(1, 4, '2026-03-26', 850),
+(2, 4, '2026-03-26', 850);
 
 -- --------------------------------------------------------
 
@@ -419,7 +431,7 @@ ALTER TABLE `ingredients`
 ALTER TABLE `meal_schedule`
   ADD PRIMARY KEY (`schedule_id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `recipe_id` (`recipe_id`);
+  ADD KEY `meal_schedule_ibfk_2` (`recipe_id`);
 
 --
 -- Indexes for table `recipes`
@@ -485,7 +497,7 @@ ALTER TABLE `allergies`
 -- AUTO_INCREMENT for table `calorie_goals`
 --
 ALTER TABLE `calorie_goals`
-  MODIFY `goal_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `goal_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `diet_preferences`
@@ -497,37 +509,37 @@ ALTER TABLE `diet_preferences`
 -- AUTO_INCREMENT for table `ingredients`
 --
 ALTER TABLE `ingredients`
-  MODIFY `ingredient_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `ingredient_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `meal_schedule`
 --
 ALTER TABLE `meal_schedule`
-  MODIFY `schedule_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `schedule_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `recipes`
 --
 ALTER TABLE `recipes`
-  MODIFY `recipe_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `recipe_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `recipe_ingredients`
 --
 ALTER TABLE `recipe_ingredients`
-  MODIFY `recipe_ingredient_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `recipe_ingredient_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `recipe_steps`
 --
 ALTER TABLE `recipe_steps`
-  MODIFY `step_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `step_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for each users', AUTO_INCREMENT=7;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for each users', AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `user_daily_calories`
@@ -550,7 +562,7 @@ ALTER TABLE `calorie_goals`
 --
 ALTER TABLE `meal_schedule`
   ADD CONSTRAINT `meal_schedule_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `meal_schedule_ibfk_2` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`recipe_id`);
+  ADD CONSTRAINT `meal_schedule_ibfk_2` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`recipe_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `recipes`
