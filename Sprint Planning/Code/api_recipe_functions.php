@@ -1,5 +1,6 @@
 <?php
 function createRecipe($userId, $recipe_ingredients_string, $meal_type){
+    require 'api_config.php';
     global $conn, $ANTHROPIC_API_KEY;
     $sql_query = "
         SELECT al.allergy_id, al.allergy
