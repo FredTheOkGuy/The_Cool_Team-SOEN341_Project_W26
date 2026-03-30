@@ -2,6 +2,7 @@
 require 'api_config.php';
 require 'login_page_config.php';
 require 'sql_recipe_functions.php';
+require 'api_recipe_functions.php';
 session_start();
 $userId = $_SESSION['user_id'];
 $show_current_recipe = false;

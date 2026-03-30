@@ -2,6 +2,7 @@
 require 'api_config.php';
 require 'login_page_config.php';
 require 'sql_calorie_functions.php';
+require 'api_calorie_functions.php';
 session_start();
 $userId = $_SESSION['user_id'];
 date_default_timezone_set('America/Toronto');
@@ -25,42 +26,10 @@ if (isset($_POST['remove_calories'])) {
 
 $scheduled_calories = getScheduledCalories($conn, $userId, $today);
 checkCalories($conn, $userId, $today_date, $scheduled_calories);
-
-
-
 $total_calories = getTotalCalories($conn, $userId, $today_date);
-
-
 $current_goal = getDailyGoal($conn, $userId);
 
-$prompt = "User ate $total_calories/$current_goal kcal today. Give a short motivational message + 1 tip. Be warm and concise.";
-$data = [
-    "model" => "claude-haiku-4-5-20251001",
-    "max_tokens" => 1000,
-    "messages" => [
-        [
-            "role" => "user",
-            "content" => $prompt
-        ]
-    ]
-];
-
-$ch = curl_init("https://api.anthropic.com/v1/messages");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json",
-    "x-api-key: " . $ANTHROPIC_API_KEY,
-    "anthropic-version: 2023-06-01"
-]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-$response = curl_exec($ch);
-if ($response === false) {
-    die("cURL error: " . curl_error($ch));
-}
-
-$result = json_decode($response, true);
+$result = getCalorieTip($total_calories, $current_goal);
 
 if (!isset($result['content'][0]['text'])) {
     die("<pre>API Error: " . htmlspecialchars($response) . "</pre>");
