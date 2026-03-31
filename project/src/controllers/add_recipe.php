@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'login_page_config.php';
-require_once 'sql_recipe_functions.php';
+require_once __DIR__ . '/../../config/login_page_config.php';
+require_once __DIR__ . '/../models/sql_recipe_functions.php';
 $userId = $_SESSION['user_id'];
 
 // If the save recipe button was pressed, then add the info in the database
@@ -31,7 +31,8 @@ if(isset($_POST['save_recipe'])) {
 
     addRecipe($userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps);
     // When we add a recipe, after adding it, we head back to the recipes
-    header('Location: recipes.php');
+    header('Location: /src/views/recipes.php');
+    exit;
 }
 
 ?>
@@ -42,20 +43,20 @@ if(isset($_POST['save_recipe'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Recipe</title>
 
-  <link rel="stylesheet" href="add_recipe_style.css" />
+  <link rel="stylesheet" href="/public/css/add_recipe_style.css" />
 </head>
 
 <body>
 
 <header class="site-header">
   <div class="brand">
-    <img class="logo" src="logo.jpg" alt="Logo">
+    <img class="logo" src="/public/images/logo.jpg" alt="Logo">
     <div class="title">The Cool Team App</div>
   </div>
 
   <!-- Simple back button  -->
   <div class="back-button-container">
-    <button class="btn btn-primary" onclick="window.location.href='recipes.php'">
+    <button class="btn btn-primary" onclick="window.location.href='/src/views/recipes.php'">
       Back to Recipes
     </button>
   </div>

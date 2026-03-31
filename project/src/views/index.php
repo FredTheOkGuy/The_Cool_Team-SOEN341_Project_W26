@@ -43,7 +43,7 @@ function isActiveForm($formName, $activeForm){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Cool Team's Website</title>
-    <link rel="stylesheet" href="login_page_style.css">
+    <link rel="stylesheet" href="/public/css/login_page_style.css">
 </head>
 
 
@@ -57,7 +57,7 @@ function isActiveForm($formName, $activeForm){
     <div class="container">
     <!-- This is the login form (we see the isActiveForm function call, this is to see which is active, so which one we're displaying) -->
         <div class="form-box <?= isActiveForm('login', $activeForm); ?>" id="login-form">
-            <form action="login_page_register.php" method="post">
+            <form action="/src/controllers/login_page_register.php" method="post">
                 <h2>Login</h2>
                 <?= showError($errors['login']);?>
                 <?= showConfirmation($confirmations['creation']);?>
@@ -70,7 +70,7 @@ function isActiveForm($formName, $activeForm){
         </div>
         <!-- This is the registration form  -->
         <div class="form-box <?= isActiveForm('register', $activeForm); ?>" id="register-form">
-            <form action="login_page_register.php" method="post">
+            <form action="/src/controllers/login_page_register.php" method="post">
                 <h2>Register</h2>
                 <?= showError($errors['register']); ?>
                 <?= showError($errors['retype']); ?>
@@ -85,7 +85,7 @@ function isActiveForm($formName, $activeForm){
         </div>
     </div>
 <!-- Include the script to take care of active form  -->  
-<script src="login_page_script.js"></script>
+<script src="/public/js/login_page_script.js"></script>
 </body>
 
 </html>

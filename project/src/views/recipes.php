@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'login_page_config.php';
+require_once __DIR__ . '/../../config/login_page_config.php';
 $userId = $_SESSION['user_id'];
 
 // If delete recipe button is clicked (works the same as the allergies and dp)
@@ -144,25 +144,25 @@ $recipes = $result->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Recipes</title>
-    <link rel="stylesheet" href="recipes_style.css">
+    <link rel="stylesheet" href="/public/css/recipes_style.css">
 </head>
 
 <header class="site-header">
     <div class="brand">
-        <img class="logo" src="logo.jpg" alt="Logo">
+        <img class="logo" src="/public/images/logo.jpg" alt="Logo">
 
         <div class="title">The Cool Team App</div>
     </div>
 
     <div class="back-button-container">
-        <button class="btn btn-primary" onclick="window.location.href='main_menu.php'">
+        <button class="btn btn-primary" onclick="window.location.href='/src/views/main_menu.php'">
             Back to Main Page
         </button>
     </div>
 </header>
 
 <body>
-    <a href="add_recipe.php" class="add-recipe-btn" title="Add Recipes" aria-label="Add Recipes">Add Recipes</a>
+    <a href="/src/views/recipe_creation.php" class="add-recipe-btn" title="Add Recipes" aria-label="Add Recipes">Add Recipes</a>
     <div class="card">
         <h2>My Recipes</h2>
         <div class="recipes-container">
@@ -280,7 +280,7 @@ if ($recipes->num_rows > 0) {
             </div>
 
             <div class="recipe-actions">
-                <a href="edit_recipe.php?recipe_id=' . $recipe_id . '">Edit</a>
+                <a href="/src/views/edit_recipe.php?recipe_id=' . $recipe_id . '">Edit</a>
                 <form method="POST">
                     <input type="hidden" name="recipe_id" value="' . $recipe_id . '">
                     <button type="submit" name="delete_recipe" onclick="return confirm(\'Are you sure you want to delete this recipe?\')">Delete</button>

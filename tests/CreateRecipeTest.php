@@ -10,12 +10,12 @@ final class CreateRecipeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sourceFile = __DIR__ . '/../Sprint Planning/Code/recipe_creation.php';
+        $this->sourceFile = __DIR__ . '/../project/src/views/recipe_creation.php';
         $this->assertFileExists($this->sourceFile, 'Update $sourceFile to the real script path.');
     }
 
     public function testCreateRecipeUsesDecodedIngredientsAndMealType(): void
-    {
+    
         $sandbox = $this->makeSandbox();
 
         $runner = <<<'PHP'

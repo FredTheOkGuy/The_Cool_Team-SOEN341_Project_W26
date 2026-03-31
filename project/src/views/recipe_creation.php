@@ -1,7 +1,7 @@
 <?php
-require 'api_config.php';
-require 'login_page_config.php';
-require 'sql_recipe_functions.php';
+require_once __DIR__ . '/../../config/api_config.php';
+require_once __DIR__ . '/../../config/login_page_config.php';
+require_once __DIR__ . '/../models/sql_recipe_functions.php';
 session_start();
 $userId = $_SESSION['user_id'];
 $show_current_recipe = false;
@@ -49,12 +49,12 @@ if(isset($_POST['create_recipe'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Recipe Creation</title>
-    <link rel="stylesheet" href="recipe_creation_style.css">
+    <link rel="stylesheet" href="/public/css/recipe_creation_style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
     <div class="menu-button">
-        <a href="main_menu.php">
+        <a href="/src/views/main_menu.php">
             <i class='bx bx-arrow-back'></i> Back to Main Menu
         </a>
     </div>

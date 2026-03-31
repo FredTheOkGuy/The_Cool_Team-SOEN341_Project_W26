@@ -1,7 +1,7 @@
 <?php
 // This is the register/login page functionality
 session_start();
-require_once 'login_page_config.php';
+require_once __DIR__ . '/../../config/login_page_config.php';
 
 // If you are registering (click the register button)
 if(isset($_POST['register'])){
@@ -30,7 +30,7 @@ if(isset($_POST['register'])){
         $_SESSION['account_confirmation'] = 'Account successfully created';
     }
 
-    header("Location: index.php");
+    header("Location: /src/views/index.php");
     exit();
 }
 
@@ -49,7 +49,7 @@ if(isset($_POST['login'])){
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['user_id'] = $user['id'];
-            header("Location: main_menu.php");
+            header("Location: /src/views/main_menu.php");
             exit();
         }
     }
@@ -58,7 +58,7 @@ if(isset($_POST['login'])){
     $_SESSION['login_error'] = 'Incorrect email or password';
     $_SESSION['active_form'] = 'login';
 
-    header("Location: index.php");
+    header("Location: /src/views/index.php");
     exit();
 }
 ?>

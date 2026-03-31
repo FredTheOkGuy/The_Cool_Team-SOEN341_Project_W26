@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'login_page_config.php';
-require 'sql_meals_functions.php';
+require_once __DIR__ . '/../../config/login_page_config.php';
+require_once __DIR__ . '/../models/sql_meals_functions.php';
 $userId = $_SESSION['user_id'];
 // Tried to make it after logging out, you can't come back on this page (doesn't work D;)
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -75,7 +75,7 @@ $today = date('l');
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Main Menu</title>
-    <link rel="stylesheet" href="main_menu_style.css">
+    <link rel="stylesheet" href="/public/css/main_menu_style.css">
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
@@ -90,28 +90,28 @@ $today = date('l');
 		</div>
 		<ul>
 			<li>
-				<a href="recipes.php">
+				<a href="/src/views/recipes.php">
 					<i class='bx bx-fork' ></i>
 					<span class="links_name">Your recipes</span>
 				</a>
 				<span class="tooltip">Your recipes</span>
 			</li>
 			<li>
-				<a href="calorie_tracker.php">
+				<a href="/src/views/calorie_tracker.php">
 					<i class='bx bxs-heart'></i>
 					<span class="links_name">Calorie Tracker</span>
 				</a>
 				<span class="tooltip">Calorie Tracker</span>
 			</li>
 			<li>
-				<a href="recipe_creation.php">
+				<a href="/src/views/recipe_creation.php">
 					<i class='bx bxs-bowl-rice' ></i>
 					<span class="links_name">Recipe Creator</span>
 				</a>
 				<span class="tooltip">Recipe Creator</span>
 			</li>
 			<li id="log-out">
-				<a href="log_out.php">
+				<a href="/src/controllers/log_out.php">
 					<i class='bx bx-log-out' ></i>
 					<span class="links_name">Log Out</span>
 				</a>
