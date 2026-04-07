@@ -1,69 +1,4 @@
-<?php
-/*This whole code is legit the same as the add recipes, just we load the values that we already have for the specific
-  recipe (the placeholders becomes the current values) */
-session_start();
-require_once __DIR__ . '/../../config/login_page_config.php';
-require_once __DIR__ . '/../models/sql_recipe_functions.php';
-$userId = $_SESSION['user_id'];
-
-$recipe_id = $_GET['recipe_id'] ?? null;
-
-if (!$recipe_id) {
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
-    exit;
-}
-
-// When the user clicks the save recipe button
-if(isset($_POST['save_recipe'])) {
-    $recipe_name        = trim($_POST['recipe_name']);
-    $recipe_description = trim($_POST['recipe_description']);
-    $recipe_ingredients = isset($_POST['ingredients']) ? json_decode($_POST['ingredients'], true) : [];
-    $recipe_steps       = isset($_POST['steps']) ? json_decode($_POST['steps'], true) : [];
-    $prep_time          = intval($_POST['prep_time']);
-    $cook_time          = intval($_POST['cook_time']);
-    $difficulty         = $_POST['difficulty'];
-    $meal_type          = $_POST['meal_type'];
-    $calories           = intval($_POST['calories']);
-    $dietary_tags       = isset($_POST['dietary_tags']) ? $_POST['dietary_tags'] : [];
-    $gmo_free           = in_array('gmo_free', $dietary_tags) ? 1 : 0;
-    $gluten_free        = in_array('gluten_free', $dietary_tags) ? 1 : 0;
-    $lactose_free       = in_array('lactose_free', $dietary_tags) ? 1 : 0;
-    $vegan              = in_array('vegan', $dietary_tags) ? 1 : 0;
-    $vegetarian         = in_array('vegetarian', $dietary_tags) ? 1 : 0;
-
-    editRecipe($userId, $recipe_id, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps);
-
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
-    exit;
-}
-
-// We fetch the information of the recipe (works the same as the display recipes)
-$result = $conn->prepare("SELECT * FROM recipes WHERE recipe_id = ? AND user_id = ?");
-$result->bind_param('ii', $recipe_id, $userId);
-$result->execute();
-$recipe = $result->get_result()->fetch_assoc();
-
-if (!$recipe) {
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
-    exit;
-}
-$ingredient_result = $conn->prepare("SELECT i.ingredient_name FROM ingredients i JOIN recipe_ingredients ri ON i.ingredient_id = ri.ingredient_id WHERE ri.recipe_id = ?");
-$ingredient_result->bind_param('i', $recipe_id);
-$ingredient_result->execute();
-$ingredient_result = $ingredient_result->get_result();
-$existing_ingredients = [];
-while ($row = $ingredient_result->fetch_assoc()) {
-    $existing_ingredients[] = $row['ingredient_name'];
-}
-$step_result = $conn->prepare("SELECT step_instruction FROM recipe_steps WHERE recipe_id = ? ORDER BY step_number");
-$step_result->bind_param('i', $recipe_id);
-$step_result->execute();
-$step_result = $step_result->get_result();
-$existing_steps = [];
-while ($row = $step_result->fetch_assoc()) {
-    $existing_steps[] = $row['step_instruction'];
-}
-?>
+<?php include __DIR__ . '/../controllers/edit_recipe_post.php'; ?>
 
 <!DOCTYPE html>
 <!-- Like said at the beginning, instead of placeholders, we put in the value of the current recipe (loaded in the php section)  -->
@@ -210,51 +145,7 @@ while ($row = $step_result->fetch_assoc()) {
     </div>
   </div>
 
+<script src="<?= BASE_URL ?>/public/js/recipes_script.js"></script>
 
-<script>
-    // This section is the exact same as the add recipe
-    function checkIngredient(ingredientName) {
-        const rows = document.getElementById('ingredients-tbody').getElementsByTagName('tr');
-        for (let i = 0; i < rows.length; i++) {
-            if (rows[i].cells[0].innerText === ingredientName) return true;
-        }
-        return false;
-    }
-
-    function removeIngredient(btn) { btn.closest('tr').remove(); }
-    function removeStep(btn) { btn.closest('tr').remove(); }
-
-    document.getElementById('add_ingredient').addEventListener('click', function () {
-        const input = document.getElementById('ingredient_name');
-        const name  = input.value.trim();
-        if (name !== '' && !checkIngredient(name)) {
-            const tbody = document.getElementById('ingredients-tbody');
-            const row   = document.createElement('tr');
-            row.innerHTML = `<td>${name}</td><td><button type="button" class="btn btn-danger" onclick="removeIngredient(this)">Remove</button></td>`;
-            tbody.appendChild(row);
-            input.value = '';
-        }
-    });
-
-    document.getElementById('add_step').addEventListener('click', function () {
-        const input = document.getElementById('step_name');
-        const name  = input.value.trim();
-        if (name !== '') {
-            const tbody = document.getElementById('steps-tbody');
-            const row   = document.createElement('tr');
-            row.innerHTML = `<td>${name}</td><td><button type="button" class="btn btn-danger" onclick="removeStep(this)">Remove</button></td>`;
-            tbody.appendChild(row);
-            input.value = '';
-        }
-    });
-
-    document.getElementById('main-form').addEventListener('submit', function () {
-        const ingredientRows = document.getElementById('ingredients-tbody').getElementsByTagName('tr');
-        document.getElementById('ingredients_input').value = JSON.stringify(Array.from(ingredientRows).map(r => r.cells[0].innerText));
-
-        const stepRows = document.getElementById('steps-tbody').getElementsByTagName('tr');
-        document.getElementById('steps_input').value = JSON.stringify(Array.from(stepRows).map(r => r.cells[0].innerText));
-    });
-</script>
 </body>
 </html>

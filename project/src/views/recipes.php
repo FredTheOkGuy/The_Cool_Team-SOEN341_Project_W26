@@ -1,15 +1,13 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../config/login_page_config.php';
+require_once __DIR__ . '/../models/sql_recipe_functions.php';
 $userId = $_SESSION['user_id'];
 
 // If delete recipe button is clicked (works the same as the allergies and dp)
 if(isset($_POST['delete_recipe'])) {
     $recipe_id = $_POST['recipe_id'];
-    $delete_query = "DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?";
-    $delete_stmt = $conn->prepare($delete_query);
-    $delete_stmt->bind_param('ii', $recipe_id, $userId);
-    $delete_stmt->execute();
+    deleteRecipe($recipe_id, $userId);
 }
 
 // Here is for the filtering, searching and sorting
@@ -161,7 +159,7 @@ $recipes = $result->get_result();
 </header>
 
 <body>
-    <a href="<?= BASE_URL ?>/src/views/recipe_creation.php" class="add-recipe-btn" title="Add Recipes" aria-label="Add Recipes">Add Recipes</a>
+    <a href="<?= BASE_URL ?>/src/views/add_recipe.php" class="add-recipe-btn" title="Add Recipes" aria-label="Add Recipes">Add Recipes</a>
     <div class="card">
         <h2>My Recipes</h2>
         <div class="recipes-container">
@@ -225,27 +223,13 @@ $recipes = $result->get_result();
 if ($recipes->num_rows > 0) {
     while ($row = $recipes->fetch_assoc()) {
         $recipe_id = $row['recipe_id'];
-        $ingredients_query = "SELECT i.ingredient_name 
-                             FROM ingredients i
-                             JOIN recipe_ingredients ri ON i.ingredient_id = ri.ingredient_id
-                             WHERE ri.recipe_id = ?";
-        $ingredients_stmt = $conn->prepare($ingredients_query);
-        $ingredients_stmt->bind_param('i', $recipe_id);
-        $ingredients_stmt->execute();
-        $ingredients_result = $ingredients_stmt->get_result();
+        $ingredients_result = getRecipeIngredients($recipe_id);
         $ingredients = [];
         while ($ingredient = $ingredients_result->fetch_assoc()) {
             $ingredients[] = htmlspecialchars($ingredient['ingredient_name']);
         }
         $ingredients_display = !empty($ingredients) ? implode(', ', $ingredients) : 'No ingredients listed.';
-
-        $step_query = "SELECT step_number, step_instruction
-                       FROM recipe_steps
-                       WHERE recipe_id = ?";
-        $step_stmt = $conn->prepare($step_query);
-        $step_stmt->bind_param('i', $recipe_id);
-        $step_stmt->execute();
-        $steps_result = $step_stmt->get_result();
+        $steps_result = getRecipesWithStepNumber($recipe_id);
         $steps_display = '';
         while ($step = $steps_result->fetch_assoc()) {
             $steps_display .= '<p><strong>&nbsp Step ' . htmlspecialchars($step['step_number']) . ':</strong> ' . htmlspecialchars($step['step_instruction']) . '</p>';
@@ -277,7 +261,7 @@ if ($recipes->num_rows > 0) {
             </div>
 
             <div class="recipe-actions">
-                <a href="' . BASE_URL . '/src/controllers/edit_recipe.php?recipe_id=' . $recipe_id . '">Edit</a>
+                <a href="' . BASE_URL . '/src/views/edit_recipe.php?recipe_id=' . $recipe_id . '">Edit</a>
                 <form method="POST">
                     <input type="hidden" name="recipe_id" value="' . $recipe_id . '">
                     <button type="submit" name="delete_recipe" onclick="return confirm(\'Are you sure you want to delete this recipe?\')">Delete</button>

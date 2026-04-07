@@ -1,41 +1,4 @@
-<?php
-session_start();
-require_once __DIR__ . '/../../config/login_page_config.php';
-require_once __DIR__ . '/../models/sql_recipe_functions.php';
-$userId = $_SESSION['user_id'];
-
-// If the save recipe button was pressed, then add the info in the database
-if(isset($_POST['save_recipe'])) {
-    // First we get all the info and save it to seperate variables
-    $recipe_name = trim($_POST['recipe_name']);
-    $recipe_description = trim($_POST['recipe_description']);
-
-    $recipe_ingredients = isset($_POST['ingredients']) ? json_decode($_POST['ingredients'], true) : [];
-    $recipe_steps = isset($_POST['steps']) ? json_decode($_POST['steps'], true) : [];
-
-    $prep_time = intval($_POST['prep_time']);
-    $cook_time = intval($_POST['cook_time']);
-
-    $difficulty = $_POST['difficulty'];
-
-    $meal_type = $_POST['meal_type'];
-
-    $calories = intval($_POST['calories']);
-
-    $dietary_tags = isset($_POST['dietary_tags']) ? $_POST['dietary_tags'] : [];
-    $gmo_free = in_array('gmo_free', $dietary_tags) ? 1 : 0;
-    $gluten_free = in_array('gluten_free', $dietary_tags) ? 1 : 0;
-    $lactose_free = in_array('lactose_free', $dietary_tags) ? 1 : 0;
-    $vegan = in_array('vegan', $dietary_tags) ? 1 : 0;
-    $vegetarian = in_array('vegetarian', $dietary_tags) ? 1 : 0;
-
-    addRecipe($userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps);
-    // When we add a recipe, after adding it, we head back to the recipes
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
-    exit;
-}
-
-?>
+<?php include __DIR__ . '/../controllers/add_recipe_post.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +19,7 @@ if(isset($_POST['save_recipe'])) {
 
   <!-- Simple back button  -->
   <div class="back-button-container">
-    <button class="btn btn-primary" onclick="window.location.href='/src/views/recipes.php'">
+    <button class="btn btn-primary" onclick="window.location.href='<?= BASE_URL ?>/src/views/recipes.php'">
       Back to Recipes
     </button>
   </div>
@@ -188,71 +151,5 @@ if(isset($_POST['save_recipe'])) {
 </body>
 </html>
 
-<script>
-    // This script is to check that the ingredient is not already added (We don't want the same ingredient twice in our recipe)
-    function checkIngredient(ingredientName){
-        const tbody = document.getElementById('ingredients-tbody');
-        const rows = tbody.getElementsByTagName('tr');
-        for(let i = 0; i < rows.length; i++){
-            if(rows[i].cells[0].innerText === ingredientName){
-                return true;
-            }
-        }        
-        return false;
-    }
-
-    // This is to remove the ingredient
-    function removeIngredient(btn){
-        btn.closest('tr').remove();
-    }
-
-    // When the add_ingredient button is clicked, we call it and we add the ingredient to the table and the list
-    document.getElementById('add_ingredient').addEventListener('click', function() {
-        const ingredientInput = document.getElementById('ingredient_name');
-        const ingredientName = ingredientInput.value.trim();
-        if (ingredientName !== '' && !checkIngredient(ingredientName)) {
-            const tbody = document.getElementById('ingredients-tbody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${ingredientName}</td>
-                <td><button type="button" class="btn btn-danger remove-ingredient" onclick="removeIngredient(this)">Remove</button></td>
-            `;
-            tbody.appendChild(row);
-            ingredientInput.value = '';
-        }
-    });
-
-    // This is the same thing as the ingredients but for the steps
-    document.getElementById('add_step').addEventListener('click', function() {
-        const stepInput = document.getElementById('step_name');
-        const stepName = stepInput.value.trim();
-        if (stepName !== '') {
-            const tbody = document.getElementById('steps-tbody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${stepName}</td>
-                <td><button type="button" class="btn btn-danger remove-step" onclick="removeStep(this)">Remove</button></td>
-            `;
-            tbody.appendChild(row);
-            stepInput.value = '';
-        }
-    });
-
-    function removeStep(btn){
-        btn.closest('tr').remove();
-    }
-
-    // We're gonna put the ingredients and steps as JSONs to be able to aprse it when adding it to the data base
-    // This event happens when the form (add recipe) is submitted
-    document.getElementById('main-form').addEventListener('submit', function(event) {
-        const ingredientRows = document.getElementById('ingredients-tbody').getElementsByTagName('tr');
-        const ingredients = Array.from(ingredientRows).map(row => row.cells[0].innerText);
-        document.getElementById('ingredients_input').value = JSON.stringify(ingredients);
-
-        const stepRows = document.getElementById('steps-tbody').getElementsByTagName('tr');
-        const steps = Array.from(stepRows).map(row => row.cells[0].innerText);
-        document.getElementById('steps_input').value = JSON.stringify(steps);
-    });
-
-</script>
+<script src="<?= BASE_URL ?>/public/js/recipes_script.js"></script>
 </html>
