@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../config/api_config.php';
-require_once __DIR__ . '/../../config/login_page_config.php';
 function addRecipe($userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps){
     global $conn;
     $recipe_insert_query = "INSERT INTO recipes (user_id, recipe_name, description, prep_time, cook_time, difficulty_level, calories, gmo_free, gluten_free, lactose_free, vegan, vegetarian, meal_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -90,6 +88,107 @@ function editRecipe($userID, $recipe_id, $recipe_name, $recipe_description, $pre
         $rs->bind_param('iis', $recipe_id, $step_number, $step);
         $rs->execute();
     }
+}
+
+function deleteRecipe($recipe_id, $userId){
+    global $conn;
+    $delete_query = "DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?";
+    $delete_stmt = $conn->prepare($delete_query);
+    $delete_stmt->bind_param('ii', $recipe_id, $userId);
+    $delete_stmt->execute();
+}
+
+function recipeDisplayInformation($userId, $search_name, $prep_time_filter, $cook_time_filter, 
+                                  $order_by, $order_direction){
+    global $conn;
+    // The main query, we will add stuff depending on the searching, filtering and sorting
+    $sql_query = "SELECT recipe_id, recipe_name,
+                description,
+                prep_time,
+                cook_time,
+                difficulty_level,
+                calories,
+                gmo_free,
+                gluten_free,
+                lactose_free,
+                vegan,
+                vegetarian,
+                meal_type FROM recipes WHERE user_id = ?
+                AND prep_time <= $prep_time_filter 
+                AND cook_time <= $cook_time_filter";
+
+    // The tags and the difficulty
+    $filter_gmo_free     = isset($_GET['filter_gmo_free'])     ? 1 : null;
+    $filter_gluten_free  = isset($_GET['filter_gluten_free'])  ? 1 : null;
+    $filter_lactose_free = isset($_GET['filter_lactose_free']) ? 1 : null;
+    $filter_vegan        = isset($_GET['filter_vegan'])        ? 1 : null;
+    $filter_vegetarian   = isset($_GET['filter_vegetarian'])   ? 1 : null;
+
+    $filter_easy_diff   = isset($_GET['easy_diff'])   ? 1 : null;
+    $filter_medium_diff = isset($_GET['medium_diff']) ? 1 : null;
+    $filter_hard_diff   = isset($_GET['hard_diff'])   ? 1 : null;
+
+    // Add the tags and difficulty filters to the query
+    if($filter_gmo_free)     $sql_query .= " AND gmo_free = 1";
+    if($filter_gluten_free)  $sql_query .= " AND gluten_free = 1";
+    if($filter_lactose_free) $sql_query .= " AND lactose_free = 1";
+    if($filter_vegan)        $sql_query .= " AND vegan = 1";
+    if($filter_vegetarian)   $sql_query .= " AND vegetarian = 1";
+    if($filter_easy_diff)    $sql_query .= " AND difficulty_level = 'Easy'";
+    if($filter_medium_diff)  $sql_query .= " AND difficulty_level = 'Medium'";
+    if($filter_hard_diff)    $sql_query .= " AND difficulty_level = 'Hard'";
+
+    $params = [$userId];
+    $types  = "i";
+
+    // Here is for the search (% is for wildcard)
+    if ($search_name) {
+        $sql_query .= " AND recipe_name LIKE ?";
+        $params[]   = '%' . $search_name . '%';
+        $types     .= "s";
+    }
+
+    $sql_query .= " ORDER BY $order_by $order_direction";
+
+    $result = $conn->prepare($sql_query);
+    $result->bind_param($types, ...$params);
+    $result->execute();
+    return $result->get_result();
+}
+
+function getRecipeInformation($recipe_id, $userId){
+    global $conn;
+    $result = $conn->prepare("SELECT * FROM recipes WHERE recipe_id = ? AND user_id = ?");
+    $result->bind_param('ii', $recipe_id, $userId);
+    $result->execute();
+    return $result->get_result()->fetch_assoc();
+}
+
+function getRecipeIngredients($recipe_id){
+    global $conn;
+    $ingredient_result = $conn->prepare("SELECT i.ingredient_name FROM ingredients i JOIN recipe_ingredients ri ON i.ingredient_id = ri.ingredient_id WHERE ri.recipe_id = ?");
+    $ingredient_result->bind_param('i', $recipe_id);
+    $ingredient_result->execute();
+    return $ingredient_result->get_result();
+}
+
+function getRecipeSteps($recipe_id){
+    global $conn;
+    $step_result = $conn->prepare("SELECT step_instruction FROM recipe_steps WHERE recipe_id = ? ORDER BY step_number");
+    $step_result->bind_param('i', $recipe_id);
+    $step_result->execute();
+    return $step_result->get_result();
+}
+
+function getRecipesWithStepNumber($recipe_id){
+    global $conn;
+    $step_query = "SELECT step_number, step_instruction
+                    FROM recipe_steps
+                    WHERE recipe_id = ?";
+        $step_stmt = $conn->prepare($step_query);
+        $step_stmt->bind_param('i', $recipe_id);
+        $step_stmt->execute();  
+        return $step_stmt->get_result();
 }
 
 function createRecipe($userId, $recipe_ingredients_string, $meal_type){

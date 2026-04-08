@@ -10,7 +10,7 @@ final class EditRecipeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sourceFile = __DIR__ . '/../project/src/controllers/edit_recipe.php';
+        $this->sourceFile = __DIR__ . '/../project/src/views/edit_recipe.php';
         $this->assertFileExists($this->sourceFile, 'Update $sourceFile to the real script path.');
     }
 
@@ -155,26 +155,32 @@ PHP;
         $dir = sys_get_temp_dir() . '/edit_recipe_test_' . bin2hex(random_bytes(6));
         mkdir($dir, 0777, true);
 
+        // Copy both view and controller into sandbox
         copy($this->sourceFile, $dir . '/subject.php');
+        copy(__DIR__ . '/../project/src/controllers/edit_recipe_post.php', $dir . '/edit_recipe_post.php');
 
-        // Patch require paths for sandbox
+        // Patch subject.php (edit_recipe.php) include path
         $subject = file_get_contents($dir . '/subject.php');
         $subject = str_replace(
-            "require_once __DIR__ . '/../../config/login_page_config.php'",
-            "require_once __DIR__ . '/login_page_config.php'",
-            $subject
-        );
-        $subject = str_replace(
-            "require_once __DIR__ . '/../../config/api_config.php'",
-            "require_once __DIR__ . '/api_config.php'",
-            $subject
-        );
-        $subject = str_replace(
-            "require_once __DIR__ . '/../models/sql_recipe_functions.php'",
-            "require_once __DIR__ . '/sql_recipe_functions.php'",
+            "include __DIR__ . '/../controllers/edit_recipe_post.php'",
+            "include __DIR__ . '/edit_recipe_post.php'",
             $subject
         );
         file_put_contents($dir . '/subject.php', $subject);
+
+        // Patch edit_recipe_post.php require paths
+        $post = file_get_contents($dir . '/edit_recipe_post.php');
+        $post = str_replace(
+            "require_once __DIR__ . '/../../config/login_page_config.php'",
+            "require_once __DIR__ . '/login_page_config.php'",
+            $post
+        );
+        $post = str_replace(
+            "require_once __DIR__ . '/../models/sql_recipe_functions.php'",
+            "require_once __DIR__ . '/sql_recipe_functions.php'",
+            $post
+        );
+        file_put_contents($dir . '/edit_recipe_post.php', $post);
 
         $loginPageConfig = <<<'PHP'
 <?php
@@ -275,6 +281,57 @@ PHP;
 function editRecipe(...$args): void
 {
     file_put_contents(__DIR__ . '/editRecipe_log.json', json_encode($args, JSON_PRETTY_PRINT));
+}
+
+function getRecipeInformation($recipe_id, $userId)
+{
+    return [
+        'recipe_id'        => 5,
+        'recipe_name'      => 'Mock Recipe',
+        'description'      => 'A mocked description',
+        'prep_time'        => 10,
+        'cook_time'        => 25,
+        'difficulty_level' => 'easy',
+        'meal_type'        => 'breakfast',
+        'calories'         => 400,
+        'gmo_free'         => 1,
+        'gluten_free'      => 0,
+        'lactose_free'     => 1,
+        'vegan'            => 0,
+        'vegetarian'       => 1,
+    ];
+}
+
+function getRecipeIngredients($recipe_id)
+{
+    $rows = [
+        ['ingredient_name' => 'tomato'],
+        ['ingredient_name' => 'basil'],
+    ];
+    return new class($rows) {
+        private array $rows;
+        private int $index = 0;
+        public function __construct(array $rows) { $this->rows = $rows; }
+        public function fetch_assoc() {
+            return $this->rows[$this->index++] ?? null;
+        }
+    };
+}
+
+function getRecipeSteps($recipe_id)
+{
+    $rows = [
+        ['step_instruction' => 'Chop ingredients'],
+        ['step_instruction' => 'Cook gently'],
+    ];
+    return new class($rows) {
+        private array $rows;
+        private int $index = 0;
+        public function __construct(array $rows) { $this->rows = $rows; }
+        public function fetch_assoc() {
+            return $this->rows[$this->index++] ?? null;
+        }
+    };
 }
 PHP;
 

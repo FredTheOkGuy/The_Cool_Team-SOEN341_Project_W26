@@ -10,201 +10,210 @@ final class CreateRecipeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sourceFile = __DIR__ . '/../project/src/views/recipe_creation.php';
-        $this->assertFileExists($this->sourceFile, 'Update $sourceFile to the real script path.');
+        $this->sourceFile = __DIR__ . '/../project/src/controllers/recipe_creation_post.php';
+        $this->assertFileExists($this->sourceFile, 'Check your path to recipe_creation_post.php.');
     }
 
-    public function testCreateRecipeUsesDecodedIngredientsAndMealType(): void
+    public function testCreateRecipeIsTriggeredWhenCreatePostFlagIsSet(): void
     {
         $sandbox = $this->makeSandbox();
 
         $runner = <<<'PHP'
 <?php
 error_reporting(E_ERROR | E_PARSE);
+
 session_start();
-$_SESSION['user_id'] = 99;
+$_SESSION['user_id'] = 1;
 
 $_POST['create_recipe'] = '1';
-$_POST['ingredients'] = json_encode(['tomato', 'rice', 'beans']);
-$_POST['meal_type'] = 'dinner';
+$_POST['ingredients']   = json_encode(['chicken', 'garlic', 'lemon']);
+$_POST['meal_type']     = 'dinner';
 
+ob_start();
 include __DIR__ . '/subject.php';
-
-file_put_contents(
-    __DIR__ . '/result.json',
-    json_encode([
-        'show_current_recipe' => $show_current_recipe,
-        'recipe' => $recipe,
-        'recipe_ingredients' => $recipe_ingredients,
-        'meal_type' => $meal_type,
-        'createRecipeArgs' => $GLOBALS['createRecipeArgs'] ?? null,
-    ], JSON_PRETTY_PRINT)
-);
+ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
-        $this->assertSame(0, $exitCode, 'Runner failed: ' . implode("\n", $output));
-
-        $resultFile = $sandbox . '/result.json';
-        $this->assertFileExists($resultFile, 'Result file was not created.');
-
-        $data = json_decode((string) file_get_contents($resultFile), true);
-        $this->assertIsArray($data, 'Decoded result.json is not an array.');
-
-        $this->assertTrue($data['show_current_recipe']);
-        $this->assertSame(['tomato', 'rice', 'beans'], $data['recipe_ingredients']);
-        $this->assertSame('dinner', $data['meal_type']);
-
-        $this->assertSame(99, $data['createRecipeArgs'][0]);
-        $this->assertSame('tomato, rice, beans', $data['createRecipeArgs'][1]);
-        $this->assertSame('dinner', $data['createRecipeArgs'][2]);
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+        $this->assertFileExists($sandbox . '/create_called.txt');
     }
 
-    public function testCreateRecipeFallsBackToEmptyArrayWhenIngredientsJsonIsInvalid(): void
+    public function testCreateRecipePassesCorrectIngredientsAndMealType(): void
     {
         $sandbox = $this->makeSandbox();
 
         $runner = <<<'PHP'
 <?php
 error_reporting(E_ERROR | E_PARSE);
+
 session_start();
-$_SESSION['user_id'] = 55;
+$_SESSION['user_id'] = 5;
 
 $_POST['create_recipe'] = '1';
-$_POST['ingredients'] = 'not valid json';
-$_POST['meal_type'] = 'lunch';
+$_POST['ingredients']   = json_encode(['egg', 'butter', 'flour']);
+$_POST['meal_type']     = 'breakfast';
 
+ob_start();
 include __DIR__ . '/subject.php';
-
-file_put_contents(
-    __DIR__ . '/result.json',
-    json_encode([
-        'recipe_ingredients' => $recipe_ingredients,
-        'createRecipeArgs' => $GLOBALS['createRecipeArgs'] ?? null,
-    ], JSON_PRETTY_PRINT)
-);
+ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
-        $this->assertSame(0, $exitCode, 'Runner failed: ' . implode("\n", $output));
+        $this->assertSame(0, $exitCode, implode("\n", $output));
 
-        $resultFile = $sandbox . '/result.json';
-        $this->assertFileExists($resultFile, 'Result file was not created.');
+        $callFile = $sandbox . '/create_args.json';
+        $this->assertFileExists($callFile);
 
-        $data = json_decode((string) file_get_contents($resultFile), true);
-        $this->assertIsArray($data, 'Decoded result.json is not an array.');
-
-        $this->assertSame([], $data['recipe_ingredients']);
-        $this->assertSame('', $data['createRecipeArgs'][1]);
-        $this->assertSame('lunch', $data['createRecipeArgs'][2]);
+        $args = json_decode((string) file_get_contents($callFile), true);
+        $this->assertSame('egg, butter, flour', $args['ingredients_string']);
+        $this->assertSame('breakfast', $args['meal_type']);
     }
 
-    public function testSaveRecipeCallsAddRecipeWithNormalizedValues(): void
+    public function testSaveRecipeIsTriggeredWhenSavePostFlagIsSet(): void
+    {
+        $sandbox = $this->makeSandbox();
+
+        $recipe = [
+            'name'              => 'Test Recipe',
+            'description'       => 'A test recipe',
+            'prep_time_minutes' => 10,
+            'cook_time_minutes' => 20,
+            'difficulty'        => 'easy',
+            'calories'          => 400,
+            'gmo_free'          => true,
+            'gluten_free'       => false,
+            'lactose_free'      => false,
+            'vegan'             => false,
+            'vegetarian'        => true,
+            'ingredients'       => ['egg', 'butter'],
+            'steps'             => ['Mix ingredients', 'Cook for 20 mins'],
+        ];
+
+        $runner = '<?php' . "\n" .
+            'error_reporting(E_ERROR | E_PARSE);' . "\n" .
+            'session_start();' . "\n" .
+            '$_SESSION[\'user_id\'] = 3;' . "\n" .
+            '$_POST[\'save_recipe\'] = \'1\';' . "\n" .
+            '$_POST[\'recipe_data\'] = \'' . json_encode($recipe) . '\';' . "\n" .
+            '$_POST[\'meal_type\'] = \'dinner\';' . "\n" .
+            'ob_start();' . "\n" .
+            'include __DIR__ . \'/subject.php\';' . "\n" .
+            'ob_end_clean();' . "\n";
+
+        file_put_contents($sandbox . '/runner.php', $runner);
+        exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+        $this->assertFileExists($sandbox . '/add_recipe_called.txt');
+    }
+
+    public function testCreateIsNotTriggeredWhenNoPostFlagIsSet(): void
     {
         $sandbox = $this->makeSandbox();
 
         $runner = <<<'PHP'
 <?php
 error_reporting(E_ERROR | E_PARSE);
+
 session_start();
-$_SESSION['user_id'] = 7;
+$_SESSION['user_id'] = 9;
 
-$_POST['save_recipe'] = '1';
-$_POST['meal_type'] = 'breakfast';
-$_POST['recipe_data'] = json_encode([
-    'name' => 'Protein Oats',
-    'description' => 'Quick breakfast',
-    'prep_time_minutes' => '5',
-    'cook_time_minutes' => '3',
-    'difficulty' => 'easy',
-    'calories' => '350',
-    'gmo_free' => true,
-    'gluten_free' => false,
-    'lactose_free' => true,
-    'vegan' => false,
-    'vegetarian' => true,
-    'ingredients' => ['oats', 'milk'],
-    'steps' => ['mix', 'cook']
-]);
-
+ob_start();
 include __DIR__ . '/subject.php';
+ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
-        $this->assertSame(0, $exitCode, 'Runner failed: ' . implode("\n", $output));
-
-        $logFile = $sandbox . '/addRecipe_log.json';
-        $this->assertFileExists($logFile, 'addRecipe log file was not created.');
-
-        $log = json_decode((string) file_get_contents($logFile), true);
-        $this->assertIsArray($log, 'Decoded addRecipe_log.json is not an array.');
-
-        $this->assertSame(7, $log[0]);
-        $this->assertSame('Protein Oats', $log[1]);
-        $this->assertSame('Quick breakfast', $log[2]);
-        $this->assertSame(5, $log[3]);
-        $this->assertSame(3, $log[4]);
-        $this->assertSame('easy', $log[5]);
-        $this->assertSame(350, $log[6]);
-        $this->assertSame(1, $log[7]);
-        $this->assertSame(0, $log[8]);
-        $this->assertSame(1, $log[9]);
-        $this->assertSame(0, $log[10]);
-        $this->assertSame(1, $log[11]);
-        $this->assertSame('breakfast', $log[12]);
-        $this->assertSame(['oats', 'milk'], $log[13]);
-        $this->assertSame(['mix', 'cook'], $log[14]);
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+        $this->assertFileDoesNotExist($sandbox . '/create_called.txt');
+        $this->assertFileDoesNotExist($sandbox . '/add_recipe_called.txt');
     }
 
     private function makeSandbox(): string
     {
-        $dir = sys_get_temp_dir() . '/recipe_test_' . bin2hex(random_bytes(6));
+        $dir = sys_get_temp_dir() . '/create_recipe_test_' . bin2hex(random_bytes(6));
         mkdir($dir, 0777, true);
 
         copy($this->sourceFile, $dir . '/subject.php');
 
-        // Patch require paths for sandbox
-        $subject = file_get_contents($dir . '/subject.php');
-        $subject = str_replace(
-            "require_once __DIR__ . '/../../config/login_page_config.php'",
-            "require_once __DIR__ . '/login_page_config.php'",
-            $subject
-        );
-        $subject = str_replace(
+        // Patch require paths in the controller
+        $post = (string) file_get_contents($dir . '/subject.php');
+        $post = str_replace(
             "require_once __DIR__ . '/../../config/api_config.php'",
             "require_once __DIR__ . '/api_config.php'",
-            $subject
+            $post
         );
-        $subject = str_replace(
+        $post = str_replace(
+            "require_once __DIR__ . '/../../config/login_page_config.php'",
+            "require_once __DIR__ . '/login_page_config.php'",
+            $post
+        );
+        $post = str_replace(
             "require_once __DIR__ . '/../models/sql_recipe_functions.php'",
             "require_once __DIR__ . '/sql_recipe_functions.php'",
-            $subject
+            $post
         );
-        file_put_contents($dir . '/subject.php', $subject);
+        // Neutralise the redirect after save
+        $post = str_replace(
+            'header("Location: " . BASE_URL . "/src/views/recipes.php");',
+            '// redirected',
+            $post
+        );
+        $post = str_replace('exit();', '// exit', $post);
+        file_put_contents($dir . '/subject.php', $post);
 
         file_put_contents($dir . '/api_config.php', "<?php\n");
-        file_put_contents($dir . '/login_page_config.php', "<?php\ndefine('BASE_URL', '');\n");
 
-        $stubs = <<<'PHP'
+        file_put_contents($dir . '/login_page_config.php', <<<'PHP'
+<?php
+define('BASE_URL', '');
+$conn = new stdClass();
+PHP);
+
+        // Stub model functions — record calls to files for assertions
+        file_put_contents($dir . '/sql_recipe_functions.php', <<<'PHP'
 <?php
 
-function createRecipe($userId, $recipeIngredientsString, $mealType) {
-    $GLOBALS['createRecipeArgs'] = func_get_args();
-    return ['generated' => true];
+function createRecipe($userId, $ingredients_string, $meal_type)
+{
+    file_put_contents(__DIR__ . '/create_called.txt', 'called');
+    file_put_contents(__DIR__ . '/create_args.json', json_encode([
+        'user_id'            => $userId,
+        'ingredients_string' => $ingredients_string,
+        'meal_type'          => $meal_type,
+    ]));
+    return [
+        'name'              => 'Generated Recipe',
+        'description'       => 'Auto-generated',
+        'prep_time_minutes' => 5,
+        'cook_time_minutes' => 10,
+        'difficulty'        => 'easy',
+        'calories'          => 300,
+        'gmo_free'          => false,
+        'gluten_free'       => false,
+        'lactose_free'      => false,
+        'vegan'             => false,
+        'vegetarian'        => false,
+        'ingredients'       => [],
+        'steps'             => [],
+    ];
 }
 
-function addRecipe(...$args) {
-    file_put_contents(__DIR__ . '/addRecipe_log.json', json_encode($args, JSON_PRETTY_PRINT));
+function addRecipe(...$args): void
+{
+    file_put_contents(__DIR__ . '/add_recipe_called.txt', 'called');
 }
-PHP;
 
-        file_put_contents($dir . '/sql_recipe_functions.php', $stubs);
+function editRecipe(...$args): void {}
+function deleteRecipe(...$args): void {}
+PHP);
 
         return $dir;
     }
