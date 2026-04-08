@@ -1,61 +1,19 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../config/login_page_config.php';
+require_once __DIR__ . '/../models/sql_allergy_functions.php';
 $userId = $_SESSION['user_id'];
 
 // If we add an allergy (add allergy button as clicked)
 if(isset($_POST['add_allergy'])) {
-    // Get the name of the allergy
     $allergy_name = trim($_POST['allergy_name']);
-
-    // Creat SQL query to add the allergy to the table
-    $first_query = "SELECT allergy_id FROM allergies WHERE allergy = ?";
-    $first_result = $conn->prepare($first_query);
-    $first_result->bind_param('s', $allergy_name);
-    $first_result->execute();
-    $first_result->store_result();
-
-    // Since there's two tables for allergies (allergies and user_allergies, we need to make sure that alelrgy doesn't already exist)
-    // If it already exist, get its id
-    if($first_result->num_rows > 0){
-        $first_result->bind_result($allergy_id);
-        $first_result->fetch();
-    } else { // Otherwise add it to the allergies table
-        $insert_query = "INSERT INTO allergies (allergy) VALUES (?)";
-        $insert_stmt = $conn->prepare($insert_query);
-        $insert_stmt->bind_param('s', $allergy_name);
-        $insert_stmt->execute();
-        $allergy_id = $conn->insert_id;
-    }
-    $first_result->close();
-    // Then associate the allergy wih the user (using ids)
-    $exist_query = "SELECT * FROM user_allergies WHERE user_id = ? AND allergy_id = ?";
-    $exist_result = $conn->prepare($exist_query);
-    $exist_result->bind_param('ii', $userId, $allergy_id);
-    $exist_result->execute();
-    $exist_result->store_result();
-
-    if($exist_result->num_rows > 0){
-        $exist_result->close();
-        echo "<script>alert('Allergy already exists in your profile.');</script>";
-    }
-    else{
-        $exist_result->close();
-        $second_query = "INSERT INTO user_allergies (user_id, allergy_id) VALUES (?, ?)";
-        $second_result = $conn->prepare($second_query);
-        $second_result->bind_param('ii', $userId, $allergy_id);
-        $second_result->execute();
-    }
-
+    addAllergy($allergy_name, $userId);
 }
 
 // Simply delete the allergy (if delete allergy button is pressed)
 if(isset($_POST['delete_allergy'])) {
     $allergy_id = $_POST['allergy_id'];
-    $delete_query = "DELETE FROM user_allergies WHERE user_id = ? AND allergy_id = ?";
-    $delete_stmt = $conn->prepare($delete_query);
-    $delete_stmt->bind_param('ii', $userId, $allergy_id);
-    $delete_stmt->execute();
+    deleteAllergy($allergy_id, $userId);
 }
 
 //beginning of dp
