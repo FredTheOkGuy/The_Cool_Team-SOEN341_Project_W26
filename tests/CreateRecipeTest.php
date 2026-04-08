@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-final class DeleteRecipeTest extends TestCase
+final class CreateRecipeTest extends TestCase
 {
     private string $sourceFile;
 
     protected function setUp(): void
     {
-        $this->sourceFile = __DIR__ . '/../project/src/views/recipes.php';
-        $this->assertFileExists($this->sourceFile, 'Check your path to recipes.php.');
+        $this->sourceFile = __DIR__ . '/../project/src/controllers/recipe_creation_post.php';
+        $this->assertFileExists($this->sourceFile, 'Check your path to recipe_creation_post.php.');
     }
 
-    public function testDeleteRecipePreparesCorrectDeleteQuery(): void
+    public function testCreateRecipeIsTriggeredWhenCreatePostFlagIsSet(): void
     {
         $sandbox = $this->makeSandbox();
 
@@ -23,10 +23,11 @@ final class DeleteRecipeTest extends TestCase
 error_reporting(E_ERROR | E_PARSE);
 
 session_start();
-$_SESSION['user_id'] = 12;
+$_SESSION['user_id'] = 1;
 
-$_POST['delete_recipe'] = '1';
-$_POST['recipe_id'] = 44;
+$_POST['create_recipe'] = '1';
+$_POST['ingredients']   = json_encode(['chicken', 'garlic', 'lemon']);
+$_POST['meal_type']     = 'dinner';
 
 ob_start();
 include __DIR__ . '/subject.php';
@@ -34,22 +35,13 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
-
-        $sqlFile = $sandbox . '/delete_sql.txt';
-        $this->assertFileExists($sqlFile);
-
-        $sql = (string) file_get_contents($sqlFile);
-        $this->assertSame(
-            'DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?',
-            trim($sql)
-        );
+        $this->assertFileExists($sandbox . '/create_called.txt');
     }
 
-    public function testDeleteRecipeBindsRecipeIdAndUserIdAsIntegers(): void
+    public function testCreateRecipePassesCorrectIngredientsAndMealType(): void
     {
         $sandbox = $this->makeSandbox();
 
@@ -58,10 +50,11 @@ PHP;
 error_reporting(E_ERROR | E_PARSE);
 
 session_start();
-$_SESSION['user_id'] = 99;
+$_SESSION['user_id'] = 5;
 
-$_POST['delete_recipe'] = '1';
-$_POST['recipe_id'] = 123;
+$_POST['create_recipe'] = '1';
+$_POST['ingredients']   = json_encode(['egg', 'butter', 'flour']);
+$_POST['meal_type']     = 'breakfast';
 
 ob_start();
 include __DIR__ . '/subject.php';
@@ -69,22 +62,57 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
 
-        $bindFile = $sandbox . '/delete_bind.json';
-        $this->assertFileExists($bindFile);
+        $callFile = $sandbox . '/create_args.json';
+        $this->assertFileExists($callFile);
 
-        $bind = json_decode((string) file_get_contents($bindFile), true);
-        $this->assertIsArray($bind);
-
-        $this->assertSame('ii', $bind['types']);
-        $this->assertSame([123, 99], $bind['params']);
+        $args = json_decode((string) file_get_contents($callFile), true);
+        $this->assertSame('egg, butter, flour', $args['ingredients_string']);
+        $this->assertSame('breakfast', $args['meal_type']);
     }
 
-    public function testDeleteRecipeExecutesDeleteStatement(): void
+    public function testSaveRecipeIsTriggeredWhenSavePostFlagIsSet(): void
+    {
+        $sandbox = $this->makeSandbox();
+
+        $recipe = [
+            'name'              => 'Test Recipe',
+            'description'       => 'A test recipe',
+            'prep_time_minutes' => 10,
+            'cook_time_minutes' => 20,
+            'difficulty'        => 'easy',
+            'calories'          => 400,
+            'gmo_free'          => true,
+            'gluten_free'       => false,
+            'lactose_free'      => false,
+            'vegan'             => false,
+            'vegetarian'        => true,
+            'ingredients'       => ['egg', 'butter'],
+            'steps'             => ['Mix ingredients', 'Cook for 20 mins'],
+        ];
+
+        $runner = '<?php' . "\n" .
+            'error_reporting(E_ERROR | E_PARSE);' . "\n" .
+            'session_start();' . "\n" .
+            '$_SESSION[\'user_id\'] = 3;' . "\n" .
+            '$_POST[\'save_recipe\'] = \'1\';' . "\n" .
+            '$_POST[\'recipe_data\'] = \'' . json_encode($recipe) . '\';' . "\n" .
+            '$_POST[\'meal_type\'] = \'dinner\';' . "\n" .
+            'ob_start();' . "\n" .
+            'include __DIR__ . \'/subject.php\';' . "\n" .
+            'ob_end_clean();' . "\n";
+
+        file_put_contents($sandbox . '/runner.php', $runner);
+        exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+        $this->assertFileExists($sandbox . '/add_recipe_called.txt');
+    }
+
+    public function testCreateIsNotTriggeredWhenNoPostFlagIsSet(): void
     {
         $sandbox = $this->makeSandbox();
 
@@ -93,10 +121,7 @@ PHP;
 error_reporting(E_ERROR | E_PARSE);
 
 session_start();
-$_SESSION['user_id'] = 7;
-
-$_POST['delete_recipe'] = '1';
-$_POST['recipe_id'] = 8;
+$_SESSION['user_id'] = 9;
 
 ob_start();
 include __DIR__ . '/subject.php';
@@ -104,65 +129,27 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
-
-        $executedFile = $sandbox . '/delete_executed.txt';
-        $this->assertFileExists($executedFile);
-        $this->assertSame('executed', trim((string) file_get_contents($executedFile)));
-    }
-
-    public function testDeleteIsNotTriggeredWhenDeletePostFlagIsMissing(): void
-    {
-        $sandbox = $this->makeSandbox();
-
-        $runner = <<<'PHP'
-<?php
-error_reporting(E_ERROR | E_PARSE);
-
-session_start();
-$_SESSION['user_id'] = 55;
-
-$_POST['recipe_id'] = 777;
-
-ob_start();
-include __DIR__ . '/subject.php';
-ob_end_clean();
-PHP;
-
-        file_put_contents($sandbox . '/runner.php', $runner);
-
-        exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
-
-        $this->assertSame(0, $exitCode, implode("\n", $output));
-
-        $this->assertFileDoesNotExist($sandbox . '/delete_sql.txt');
-        $this->assertFileDoesNotExist($sandbox . '/delete_bind.json');
-        $this->assertFileDoesNotExist($sandbox . '/delete_executed.txt');
+        $this->assertFileDoesNotExist($sandbox . '/create_called.txt');
+        $this->assertFileDoesNotExist($sandbox . '/add_recipe_called.txt');
     }
 
     private function makeSandbox(): string
     {
-        $dir = sys_get_temp_dir() . '/delete_recipe_test_' . bin2hex(random_bytes(6));
+        $dir = sys_get_temp_dir() . '/create_recipe_test_' . bin2hex(random_bytes(6));
         mkdir($dir, 0777, true);
 
-        // Copy both view and controller into sandbox
         copy($this->sourceFile, $dir . '/subject.php');
-        copy(__DIR__ . '/../project/src/controllers/recipe_post.php', $dir . '/recipe_post.php');
 
-        // Patch subject.php (recipes.php) include path
-        $subject = file_get_contents($dir . '/subject.php');
-        $subject = str_replace(
-            "include __DIR__ . '/../controllers/recipe_post.php'",
-            "include __DIR__ . '/recipe_post.php'",
-            $subject
+        // Patch require paths in the controller
+        $post = (string) file_get_contents($dir . '/subject.php');
+        $post = str_replace(
+            "require_once __DIR__ . '/../../config/api_config.php'",
+            "require_once __DIR__ . '/api_config.php'",
+            $post
         );
-        file_put_contents($dir . '/subject.php', $subject);
-
-        // Patch recipe_post.php require paths
-        $post = file_get_contents($dir . '/recipe_post.php');
         $post = str_replace(
             "require_once __DIR__ . '/../../config/login_page_config.php'",
             "require_once __DIR__ . '/login_page_config.php'",
@@ -173,92 +160,59 @@ PHP;
             "require_once __DIR__ . '/sql_recipe_functions.php'",
             $post
         );
-        file_put_contents($dir . '/recipe_post.php', $post);
+        // Neutralise the redirect after save
+        $post = str_replace(
+            'header("Location: " . BASE_URL . "/src/views/recipes.php");',
+            '// redirected',
+            $post
+        );
+        $post = str_replace('exit();', '// exit', $post);
+        file_put_contents($dir . '/subject.php', $post);
 
         file_put_contents($dir . '/api_config.php', "<?php\n");
 
+        file_put_contents($dir . '/login_page_config.php', <<<'PHP'
+<?php
+define('BASE_URL', '');
+$conn = new stdClass();
+PHP);
+
+        // Stub model functions — record calls to files for assertions
         file_put_contents($dir . '/sql_recipe_functions.php', <<<'PHP'
 <?php
 
-function deleteRecipe(...$args): void
+function createRecipe($userId, $ingredients_string, $meal_type)
 {
+    file_put_contents(__DIR__ . '/create_called.txt', 'called');
+    file_put_contents(__DIR__ . '/create_args.json', json_encode([
+        'user_id'            => $userId,
+        'ingredients_string' => $ingredients_string,
+        'meal_type'          => $meal_type,
+    ]));
+    return [
+        'name'              => 'Generated Recipe',
+        'description'       => 'Auto-generated',
+        'prep_time_minutes' => 5,
+        'cook_time_minutes' => 10,
+        'difficulty'        => 'easy',
+        'calories'          => 300,
+        'gmo_free'          => false,
+        'gluten_free'       => false,
+        'lactose_free'      => false,
+        'vegan'             => false,
+        'vegetarian'        => false,
+        'ingredients'       => [],
+        'steps'             => [],
+    ];
 }
 
 function addRecipe(...$args): void
 {
+    file_put_contents(__DIR__ . '/add_recipe_called.txt', 'called');
 }
 
-function createRecipe(...$args)
-{
-    return null;
-}
-
-function editRecipe(...$args): void
-{
-}
-PHP);
-
-        file_put_contents($dir . '/login_page_config.php', <<<'PHP'
-<?php
-
-define('BASE_URL', '');
-
-class FakeResultSet
-{
-    public function fetch_assoc()
-    {
-        return null;
-    }
-}
-
-class FakeStmt
-{
-    private string $sql;
-
-    public function __construct(string $sql)
-    {
-        $this->sql = $sql;
-
-        if (strpos($sql, 'DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?') !== false) {
-            file_put_contents(__DIR__ . '/delete_sql.txt', $sql);
-        }
-    }
-
-    public function bind_param($types, &...$params): void
-    {
-        if (strpos($this->sql, 'DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?') !== false) {
-            file_put_contents(
-                __DIR__ . '/delete_bind.json',
-                json_encode([
-                    'types' => $types,
-                    'params' => $params,
-                ], JSON_PRETTY_PRINT)
-            );
-        }
-    }
-
-    public function execute(): void
-    {
-        if (strpos($this->sql, 'DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?') !== false) {
-            file_put_contents(__DIR__ . '/delete_executed.txt', 'executed');
-        }
-    }
-
-    public function get_result()
-    {
-        return new FakeResultSet();
-    }
-}
-
-class FakeConn
-{
-    public function prepare(string $sql)
-    {
-        return new FakeStmt($sql);
-    }
-}
-
-$conn = new FakeConn();
+function editRecipe(...$args): void {}
+function deleteRecipe(...$args): void {}
 PHP);
 
         return $dir;

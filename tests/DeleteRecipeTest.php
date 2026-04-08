@@ -34,7 +34,6 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
@@ -69,7 +68,6 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
@@ -104,7 +102,6 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
@@ -133,7 +130,6 @@ ob_end_clean();
 PHP;
 
         file_put_contents($sandbox . '/runner.php', $runner);
-
         exec(PHP_BINARY . ' ' . escapeshellarg($sandbox . '/runner.php'), $output, $exitCode);
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
@@ -148,12 +144,10 @@ PHP;
         $dir = sys_get_temp_dir() . '/delete_recipe_test_' . bin2hex(random_bytes(6));
         mkdir($dir, 0777, true);
 
-        // Copy both view and controller into sandbox
         copy($this->sourceFile, $dir . '/subject.php');
         copy(__DIR__ . '/../project/src/controllers/recipe_post.php', $dir . '/recipe_post.php');
 
-        // Patch subject.php (recipes.php) include path
-        $subject = file_get_contents($dir . '/subject.php');
+        $subject = (string) file_get_contents($dir . '/subject.php');
         $subject = str_replace(
             "include __DIR__ . '/../controllers/recipe_post.php'",
             "include __DIR__ . '/recipe_post.php'",
@@ -161,8 +155,7 @@ PHP;
         );
         file_put_contents($dir . '/subject.php', $subject);
 
-        // Patch recipe_post.php require paths
-        $post = file_get_contents($dir . '/recipe_post.php');
+        $post = (string) file_get_contents($dir . '/recipe_post.php');
         $post = str_replace(
             "require_once __DIR__ . '/../../config/login_page_config.php'",
             "require_once __DIR__ . '/login_page_config.php'",
@@ -180,21 +173,41 @@ PHP;
         file_put_contents($dir . '/sql_recipe_functions.php', <<<'PHP'
 <?php
 
-function deleteRecipe(...$args): void
+function deleteRecipe($recipe_id, $userId): void
 {
+    global $conn;
+    $delete_query = "DELETE FROM recipes WHERE recipe_id = ? AND user_id = ?";
+    $delete_stmt = $conn->prepare($delete_query);
+    $delete_stmt->bind_param('ii', $recipe_id, $userId);
+    $delete_stmt->execute();
 }
 
-function addRecipe(...$args): void
+function addRecipe(...$args): void {}
+
+function createRecipe(...$args) { return null; }
+
+function editRecipe(...$args): void {}
+
+function recipeDisplayInformation(...$args)
 {
+    return new class {
+        public int $num_rows = 0;
+        public function fetch_assoc() { return null; }
+    };
 }
 
-function createRecipe(...$args)
+function getRecipeIngredients(...$args)
 {
-    return null;
+    return new class {
+        public function fetch_assoc() { return null; }
+    };
 }
 
-function editRecipe(...$args): void
+function getRecipesWithStepNumber(...$args)
 {
+    return new class {
+        public function fetch_assoc() { return null; }
+    };
 }
 PHP);
 
@@ -230,7 +243,7 @@ class FakeStmt
             file_put_contents(
                 __DIR__ . '/delete_bind.json',
                 json_encode([
-                    'types' => $types,
+                    'types'  => $types,
                     'params' => $params,
                 ], JSON_PRETTY_PRINT)
             );

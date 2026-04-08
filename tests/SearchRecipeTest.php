@@ -274,6 +274,62 @@ function createRecipe(...$args)
 function editRecipe(...$args): void
 {
 }
+
+function recipeDisplayInformation($userId, $search_name, $prep_time_filter, $cook_time_filter, $order_by, $order_direction)
+{
+    global $conn;
+    $sql = "SELECT recipe_id, recipe_name, description, prep_time, cook_time, difficulty_level, calories, gmo_free, gluten_free, lactose_free, vegan, vegetarian, meal_type FROM recipes WHERE user_id = ?
+                AND prep_time <= $prep_time_filter 
+                AND cook_time <= $cook_time_filter";
+
+    $filter_gmo_free     = isset($_GET['filter_gmo_free'])     ? 1 : null;
+    $filter_gluten_free  = isset($_GET['filter_gluten_free'])  ? 1 : null;
+    $filter_lactose_free = isset($_GET['filter_lactose_free']) ? 1 : null;
+    $filter_vegan        = isset($_GET['filter_vegan'])        ? 1 : null;
+    $filter_vegetarian   = isset($_GET['filter_vegetarian'])   ? 1 : null;
+    $filter_easy_diff    = isset($_GET['easy_diff'])           ? 1 : null;
+    $filter_medium_diff  = isset($_GET['medium_diff'])         ? 1 : null;
+    $filter_hard_diff    = isset($_GET['hard_diff'])           ? 1 : null;
+
+    if ($filter_gmo_free)     $sql .= " AND gmo_free = 1";
+    if ($filter_gluten_free)  $sql .= " AND gluten_free = 1";
+    if ($filter_lactose_free) $sql .= " AND lactose_free = 1";
+    if ($filter_vegan)        $sql .= " AND vegan = 1";
+    if ($filter_vegetarian)   $sql .= " AND vegetarian = 1";
+    if ($filter_easy_diff)    $sql .= " AND difficulty_level = 'Easy'";
+    if ($filter_medium_diff)  $sql .= " AND difficulty_level = 'Medium'";
+    if ($filter_hard_diff)    $sql .= " AND difficulty_level = 'Hard'";
+
+    $params = [$userId];
+    $types  = "i";
+
+    if ($search_name) {
+        $sql    .= " AND recipe_name LIKE ?";
+        $params[] = '%' . $search_name . '%';
+        $types   .= "s";
+    }
+
+    $sql .= " ORDER BY $order_by $order_direction";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+function getRecipeIngredients(...$args)
+{
+    return new class {
+        public function fetch_assoc() { return null; }
+    };
+}
+
+function getRecipesWithStepNumber(...$args)
+{
+    return new class {
+        public function fetch_assoc() { return null; }
+    };
+}
 PHP);
 
         return $dir;

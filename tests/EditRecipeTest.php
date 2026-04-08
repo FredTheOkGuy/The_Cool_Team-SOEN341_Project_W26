@@ -282,6 +282,57 @@ function editRecipe(...$args): void
 {
     file_put_contents(__DIR__ . '/editRecipe_log.json', json_encode($args, JSON_PRETTY_PRINT));
 }
+
+function getRecipeInformation($recipe_id, $userId)
+{
+    return [
+        'recipe_id'        => 5,
+        'recipe_name'      => 'Mock Recipe',
+        'description'      => 'A mocked description',
+        'prep_time'        => 10,
+        'cook_time'        => 25,
+        'difficulty_level' => 'easy',
+        'meal_type'        => 'breakfast',
+        'calories'         => 400,
+        'gmo_free'         => 1,
+        'gluten_free'      => 0,
+        'lactose_free'     => 1,
+        'vegan'            => 0,
+        'vegetarian'       => 1,
+    ];
+}
+
+function getRecipeIngredients($recipe_id)
+{
+    $rows = [
+        ['ingredient_name' => 'tomato'],
+        ['ingredient_name' => 'basil'],
+    ];
+    return new class($rows) {
+        private array $rows;
+        private int $index = 0;
+        public function __construct(array $rows) { $this->rows = $rows; }
+        public function fetch_assoc() {
+            return $this->rows[$this->index++] ?? null;
+        }
+    };
+}
+
+function getRecipeSteps($recipe_id)
+{
+    $rows = [
+        ['step_instruction' => 'Chop ingredients'],
+        ['step_instruction' => 'Cook gently'],
+    ];
+    return new class($rows) {
+        private array $rows;
+        private int $index = 0;
+        public function __construct(array $rows) { $this->rows = $rows; }
+        public function fetch_assoc() {
+            return $this->rows[$this->index++] ?? null;
+        }
+    };
+}
 PHP;
 
         file_put_contents($dir . '/sql_recipe_functions.php', $sqlRecipeFunctions);
