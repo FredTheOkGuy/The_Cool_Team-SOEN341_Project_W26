@@ -171,26 +171,32 @@ PHP;
         $dir = sys_get_temp_dir() . '/search_recipe_test_' . bin2hex(random_bytes(6));
         mkdir($dir, 0777, true);
 
+        // Copy both view and controller into sandbox
         copy($this->sourceFile, $dir . '/subject.php');
+        copy(__DIR__ . '/../project/src/controllers/recipe_post.php', $dir . '/recipe_post.php');
 
-        // Patch require paths for sandbox
+        // Patch subject.php (recipes.php) include path
         $subject = file_get_contents($dir . '/subject.php');
         $subject = str_replace(
-            "require_once __DIR__ . '/../../config/login_page_config.php'",
-            "require_once __DIR__ . '/login_page_config.php'",
-            $subject
-        );
-        $subject = str_replace(
-            "require_once __DIR__ . '/../../config/api_config.php'",
-            "require_once __DIR__ . '/api_config.php'",
-            $subject
-        );
-        $subject = str_replace(
-            "require_once __DIR__ . '/../models/sql_recipe_functions.php'",
-            "require_once __DIR__ . '/sql_recipe_functions.php'",
+            "include __DIR__ . '/../controllers/recipe_post.php'",
+            "include __DIR__ . '/recipe_post.php'",
             $subject
         );
         file_put_contents($dir . '/subject.php', $subject);
+
+        // Patch recipe_post.php require paths
+        $post = file_get_contents($dir . '/recipe_post.php');
+        $post = str_replace(
+            "require_once __DIR__ . '/../../config/login_page_config.php'",
+            "require_once __DIR__ . '/login_page_config.php'",
+            $post
+        );
+        $post = str_replace(
+            "require_once __DIR__ . '/../models/sql_recipe_functions.php'",
+            "require_once __DIR__ . '/sql_recipe_functions.php'",
+            $post
+        );
+        file_put_contents($dir . '/recipe_post.php', $post);
 
         file_put_contents($dir . '/api_config.php', "<?php\n");
 
