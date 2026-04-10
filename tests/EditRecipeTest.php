@@ -38,10 +38,8 @@ PHP;
 
         $this->assertSame(0, $exitCode, implode("\n", $output));
 
-        // Because the included script calls exit, runner.php should never reach these lines
         $this->assertFileDoesNotExist($sandbox . '/finished.txt');
 
-        // And no HTML page output should have been written by runner.php after include
         $this->assertFileDoesNotExist($sandbox . '/output.txt');
     }
 
@@ -105,8 +103,6 @@ PHP;
         $this->assertSame('dinner', $args[13]);
         $this->assertSame(['pasta', 'peas', 'cream'], $args[14]);
         $this->assertSame(['Boil', 'Mix', 'Serve'], $args[15]);
-
-        // Because subject.php exits after save, runner.php should not continue
         $this->assertFileDoesNotExist($sandbox . '/finished.txt');
         $this->assertFileDoesNotExist($sandbox . '/output.txt');
     }
@@ -168,7 +164,6 @@ PHP;
         );
         file_put_contents($dir . '/subject.php', $subject);
 
-        // Patch edit_recipe_post.php require paths
         $post = file_get_contents($dir . '/edit_recipe_post.php');
         $post = str_replace(
             "require_once __DIR__ . '/../../config/login_page_config.php'",
