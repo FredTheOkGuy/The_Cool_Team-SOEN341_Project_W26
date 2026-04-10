@@ -369,3 +369,17 @@ select:focus{
     grid-template-columns: 1fr;
   }
 }
+
+.clear-filters-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 14px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.clear-filters-btn:hover {
+    background-color: #c0392b;
+}

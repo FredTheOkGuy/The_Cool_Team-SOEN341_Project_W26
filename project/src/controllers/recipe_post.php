@@ -18,36 +18,30 @@ $prep_time_filter = $_GET['prep_time_filter'] ?? '';
 // Basically a bunch of switch statements to figure our the sorting and filtering
 switch($cook_time_filter) {
     case 'under_15':
-        $cook_time_filter = 15;
+        $cook_time_filter_sql = 15;
         break;
     case 'under_30':
-        $cook_time_filter = 30;
+        $cook_time_filter_sql = 30;
         break;
     case 'under_60':
-        $cook_time_filter = 60;
-        break;
-    case 'over_60':
-        $cook_time_filter = 1000;
+        $cook_time_filter_sql = 60;
         break;
     default:
-        $cook_time_filter = 1000;
+        $cook_time_filter_sql = 1000;
 }
 
 switch($prep_time_filter) {
     case 'under_15':
-        $prep_time_filter = 15;
+        $prep_time_filter_sql = 15;
         break;
     case 'under_30':
-        $prep_time_filter = 30;
+        $prep_time_filter_sql = 30;
         break;
     case 'under_60':
-        $prep_time_filter = 60;
-        break;
-    case 'over_60':
-        $prep_time_filter = 1000;
+        $prep_time_filter_sql = 60;
         break;
     default:
-        $prep_time_filter = 1000;
+        $prep_time_filter_sql = 1000;
 }
 
 // Here the two variables are for what we're sorting for, and in what order
@@ -82,6 +76,6 @@ switch($sort_by) {
 }
 
 
-$recipes = recipeDisplayInformation($userId, $search_name, $prep_time_filter, $cook_time_filter, 
+$recipes = recipeDisplayInformation($userId, $search_name, $prep_time_filter_sql, $cook_time_filter_sql, 
                                   $order_by, $order_direction);
 ?>
