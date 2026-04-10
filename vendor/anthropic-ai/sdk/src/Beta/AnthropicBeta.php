@@ -45,4 +45,8 @@ enum AnthropicBeta: string
     case SKILLS_2025_10_02 = 'skills-2025-10-02';
 
     case FAST_MODE_2026_02_01 = 'fast-mode-2026-02-01';
+
+    case OUTPUT_300K_2026_03_24 = 'output-300k-2026-03-24';
+
+    case ADVISOR_TOOL_2026_03_01 = 'advisor-tool-2026-03-01';
 }

@@ -1,4 +1,6 @@
 <?php
+use Anthropic\Client;
+
 function addRecipe($userId, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps){
     global $conn;
     $recipe_insert_query = "INSERT INTO recipes (user_id, recipe_name, description, prep_time, cook_time, difficulty_level, calories, gmo_free, gluten_free, lactose_free, vegan, vegetarian, meal_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -192,6 +194,7 @@ function getRecipesWithStepNumber($recipe_id){
 }
 
 function createRecipe($userId, $recipe_ingredients_string, $meal_type){
+    require_once __DIR__ . '/../../../vendor/autoload.php';
     require_once __DIR__ . '/../../config/api_config.php';
     global $conn, $ANTHROPIC_API_KEY;
     $sql_query = "
@@ -256,23 +259,28 @@ function createRecipe($userId, $recipe_ingredients_string, $meal_type){
     - Output JSON only.
     ";
 
-    $client = Anthropic::client($ANTHROPIC_API_KEY);
+    $client = new Client($ANTHROPIC_API_KEY);
 
-    $response = $client->messages()->create([
-        'model' => 'claude-haiku-4-5-20251001',
-        'max_tokens' => 1000,
-        'messages' => [
+    $response = $client->messages->create(
+        maxTokens: 300,
+        messages : [
             ['role' => 'user', 'content' => $prompt]
         ],
-    ]);
+        model : 'claude-haiku-4-5-20251001',
+    );
 
-    $recipeJson = $response->content[0]->text;
+    $recipeJson = '';
+    foreach ($response->content as $block) {
+        if (isset($block->text)) {
+            $recipeJson .= $block->text;
+        }
+    }
 
-    // Clean up any markdown formatting just in case
     $recipeJson = preg_replace('/^```(?:json)?\s*/i', '', trim($recipeJson));
     $recipeJson = preg_replace('/\s*```$/', '', $recipeJson);
 
     $recipe = json_decode($recipeJson, true);
+
     return $recipe ?? null;
 }
 ?>
