@@ -2,14 +2,22 @@
 // This is the register/login page functionality
 session_start();
 require_once __DIR__ . '/../../config/login_page_config.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use ParagonIE\AntiCSRF\AntiCSRF;
 
 $csrf = new AntiCSRF(); 
-if (!$csrf->validateRequest()) { 
-    die("Invalid CSRF token. Request blocked."); 
-} 
+$valid = false;
+
+if (isset($_POST['login'])) {
+    $valid = $csrf->validateRequest('login_form');
+} elseif (isset($_POST['register'])) {
+    $valid = $csrf->validateRequest('register_form');
+}
+
+if (!$valid) {
+    die("Invalid CSRF token. Request blocked.");
+}
 
 // If you are registering (click the register button)
 if(isset($_POST['register'])){

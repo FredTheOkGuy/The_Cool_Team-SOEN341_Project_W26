@@ -21,7 +21,11 @@ $confirmations = [
 // To switch between the registration and login form
 $activeForm = $_SESSION['active_form'] ?? 'login';
 
-session_unset();
+unset($_SESSION['login_error']);
+unset($_SESSION['register_error']);
+unset($_SESSION['retype_error']);
+unset($_SESSION['account_confirmation']);
+unset($_SESSION['active_form']);
 
 // This function shows the error
 function showError($error){
@@ -59,20 +63,20 @@ function isActiveForm($formName, $activeForm){
         <!-- This is the login form (we see the isActiveForm function call, this is to see which is active, so which one we're displaying) -->
         <div class="form-box <?= isActiveForm('login', $activeForm); ?>" id="login-form">
             <form action="<?= BASE_URL ?>/src/controllers/login_page_register.php" method="post">
-                <?= $csrf->insertToken() ?>
+                <?= $csrf->insertToken('login_form') ?>
                 <h2>Login</h2>
                 <?= showError($errors['login']);?>
                 <?= showConfirmation($confirmations['creation']);?>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="submit" name="login">Login</button>
+                <button type="submit" name="login" style="background-image: url('<?= BASE_URL ?>/public/images/login_button.jpg');">Login</button>
                 <p>Not already signed up? Sign up <a href="#" onclick="showForm('register-form')">here</a></p>
             </form>
         </div>
         <!-- This is the registration form -->
         <div class="form-box <?= isActiveForm('register', $activeForm); ?>" id="register-form">
             <form action="<?= BASE_URL ?>/src/controllers/login_page_register.php" method="post">
-                <?= $csrf->insertToken() ?>
+                <?= $csrf->insertToken('register_form') ?>
                 <h2>Register</h2>
                 <?= showError($errors['register']); ?>
                 <?= showError($errors['retype']); ?>
@@ -80,7 +84,7 @@ function isActiveForm($formName, $activeForm){
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <input type="password" name="retype_password" placeholder="Confirm password" required>
-                <button type="submit" name="register">Register</button>
+                <button type="submit" name="register" style="background-image: url('<?= BASE_URL ?>/public/images/login_button.jpg');">Register</button>
                 <p>Already have an account? Login <a href="#" onclick="showForm('login-form')">here</a></p>
             </form>
         </div>

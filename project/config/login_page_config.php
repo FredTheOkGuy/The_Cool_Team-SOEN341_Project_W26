@@ -1,7 +1,7 @@
 <?php
 // Dynamically detect BASE_URL from the current script path
 function get_base_url() {
-    $script_name = $_SERVER['SCRIPT_NAME']; // e.g. /file_org/The_Cool_Team-.../project/login.php
+    $script_name = $_SERVER['SCRIPT_NAME']; // e.g. //The_Cool_Team-.../project/login.php
     
     // Find the position of '/project/' in the path and keep everything up to and including it
     $project_pos = strpos($script_name, '/project/');
