@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "anthropic-ai/sdk",
-            "version": "v0.8.0",
-            "version_normalized": "0.8.0.0",
+            "version": "v0.13.0",
+            "version_normalized": "0.13.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/anthropics/anthropic-sdk-php.git",
-                "reference": "7d49eb04a1b1a57e08879c94c655e7ecd506424b"
+                "reference": "03b18908519753e0ded7cf709545517e5e68522c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/anthropics/anthropic-sdk-php/zipball/7d49eb04a1b1a57e08879c94c655e7ecd506424b",
-                "reference": "7d49eb04a1b1a57e08879c94c655e7ecd506424b",
+                "url": "https://api.github.com/repos/anthropics/anthropic-sdk-php/zipball/03b18908519753e0ded7cf709545517e5e68522c",
+                "reference": "03b18908519753e0ded7cf709545517e5e68522c",
                 "shasum": ""
             },
             "require": {
@@ -37,12 +37,12 @@
                 "symfony/http-client": "^7"
             },
             "suggest": {
-                "aws/aws-sdk-php": "Allows using the AWS Bedrock SDK",
+                "aws/aws-sdk-php": "Allows using the AWS Bedrock, AWS gateway, and Bedrock Mantle SDKs",
                 "google/auth": "Allows using the Google Vertex SDK"
             },
-            "time": "2026-03-18T18:41:58+00:00",
+            "time": "2026-04-09T18:18:21+00:00",
             "type": "library",
-            "installation-source": "dist",
+            "installation-source": "source",
             "autoload": {
                 "files": [
                     "src/Version.php"
@@ -58,7 +58,7 @@
             "description": "Anthropic PHP SDK",
             "support": {
                 "issues": "https://github.com/anthropics/anthropic-sdk-php/issues",
-                "source": "https://github.com/anthropics/anthropic-sdk-php/tree/v0.8.0"
+                "source": "https://github.com/anthropics/anthropic-sdk-php/tree/v0.13.0"
             },
             "install-path": "../anthropic-ai/sdk"
         },

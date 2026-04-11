@@ -7,6 +7,7 @@ use Anthropic\Core\Contracts\BaseStream;
 use Anthropic\Core\Conversion;
 use Anthropic\Core\Exceptions\APIStatusException;
 use Anthropic\Core\Util;
+use Anthropic\ErrorType;
 
 /**
  * @template TItem
@@ -38,6 +39,7 @@ final class SSEStream implements BaseStream
                 case 'content_block_start':
                 case 'content_block_delta':
                 case 'content_block_stop':
+                case 'message':
                     if ($data = $row['data'] ?? '') {
                         $decoded = Util::decodeJson($data);
 
@@ -53,13 +55,15 @@ final class SSEStream implements BaseStream
                         $json = Util::decodeJson($data);
                         $message = Util::prettyEncodeJson($json);
 
-                        $exn = APIStatusException::from(
+                        $errorType = Util::dig(Util::dig($json, 'error'), 'type');
+                        $type = is_string($errorType) ? ErrorType::tryFrom($errorType) : null;
+
+                        throw APIStatusException::from(
                             request: $this->request,
                             response: $this->response,
                             message: $message,
+                            type: $type,
                         );
-
-                        throw $exn;
                     }
 
                     break;
