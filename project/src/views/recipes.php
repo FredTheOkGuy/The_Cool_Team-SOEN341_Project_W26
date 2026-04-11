@@ -51,17 +51,15 @@
             <h1>Filters</h1>
             <select name="prep_time_filter" onchange="this.form.submit()">
                 <option value="">Prep Time</option>
-                <option value="under_15" <?=($prep_time_filter == 'under_15') ? 'selected' : ''?>>Under 15 mins</option>
-                <option value="under_30" <?=($prep_time_filter == 'under_30') ? 'selected' : ''?>>Under 30 mins</option>
-                <option value="under_60" <?=($prep_time_filter == 'under_60') ? 'selected' : ''?>>Under 60 mins</option>
-                <option value="over_60" <?=($prep_time_filter == 'over_60') ? 'selected' : ''?>>Over 60 mins</option>
+                <option value="under_15" <?=($prep_time_filter == 'under_15') ? 'selected' : ''?>>Prep Time Under 15 mins</option>
+                <option value="under_30" <?=($prep_time_filter == 'under_30') ? 'selected' : ''?>>Prep Time Under 30 mins</option>
+                <option value="under_60" <?=($prep_time_filter == 'under_60') ? 'selected' : ''?>>Prep Time Under 60 mins</option>
             </select>
             <select name="cook_time_filter" onchange="this.form.submit()">
                 <option value="">Cook Time</option>
-                <option value="under_15" <?=($cook_time_filter == 'under_15') ? 'selected' : ''?>>Under 15 mins</option>
-                <option value="under_30" <?=($cook_time_filter == 'under_30') ? 'selected' : ''?>>Under 30 mins</option>
-                <option value="under_60" <?=($cook_time_filter == 'under_60') ? 'selected' : ''?>>Under 60 mins</option>
-                <option value="over_60" <?=($cook_time_filter == 'over_60') ? 'selected' : ''?>>Over 60 mins</option>
+                <option value="under_15" <?=($cook_time_filter == 'under_15') ? 'selected' : ''?>>Cook Time Under 15 mins</option>
+                <option value="under_30" <?=($cook_time_filter == 'under_30') ? 'selected' : ''?>>Cook Time Under 30 mins</option>
+                <option value="under_60" <?=($cook_time_filter == 'under_60') ? 'selected' : ''?>>Cook Time Under 60 mins</option>
             </select>
             <div class="tag-filters">
                 <label><input type="checkbox" name="filter_gmo_free"     value="1" <?=isset($_GET['filter_gmo_free'])     ? 'checked' : ''?> onchange="this.form.submit()"> GMO Free</label>
@@ -75,6 +73,7 @@
                 <label><input type="checkbox" name="medium_diff"  value="1" <?=isset($_GET['medium_diff'])  ? 'checked' : ''?> onchange="this.form.submit()"> Medium Difficulty</label>
                 <label><input type="checkbox" name="hard_diff" value="1" <?=isset($_GET['hard_diff']) ? 'checked' : ''?> onchange="this.form.submit()"> Hard Difficulty</label>     
             </div>
+            <a class="clear-filters-btn" href="?search=<?=htmlspecialchars($search_name)?>&sort=<?=htmlspecialchars($sort_by)?>">Clear Filters</a>
             </div>
             </form>
 
