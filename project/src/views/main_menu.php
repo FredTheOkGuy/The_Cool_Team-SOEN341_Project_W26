@@ -92,7 +92,7 @@
         </div>
     </div>
 
-	<a href="<?= BASE_URL ?>/src/views/profile.php" class="profile-btn" title="Profile" aria-label="Profile">Your Profile <i class='bx bxs-user'></i></a>
+	<a href="<?= BASE_URL ?>/src/views/profile.php" class="profile-btn" title="Your Profile" aria-label="Your Profile">Your Profile <i class='bx bxs-user'></i></a>
 
 </body>
 <script src="<?= BASE_URL ?>/public/js/main_menu_script.js"></script>
