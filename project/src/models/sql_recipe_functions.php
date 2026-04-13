@@ -131,14 +131,14 @@ function recipeDisplayInformation($userId, $search_name, $prep_time_filter, $coo
     $filter_hard_diff   = isset($_GET['hard_diff'])   ? 1 : null;
 
     // Add the tags and difficulty filters to the query
-    if($filter_gmo_free)     $sql_query .= " AND gmo_free = 1";
-    if($filter_gluten_free)  $sql_query .= " AND gluten_free = 1";
-    if($filter_lactose_free) $sql_query .= " AND lactose_free = 1";
-    if($filter_vegan)        $sql_query .= " AND vegan = 1";
-    if($filter_vegetarian)   $sql_query .= " AND vegetarian = 1";
-    if($filter_easy_diff)    $sql_query .= " AND difficulty_level = 'Easy'";
-    if($filter_medium_diff)  $sql_query .= " AND difficulty_level = 'Medium'";
-    if($filter_hard_diff)    $sql_query .= " AND difficulty_level = 'Hard'";
+    if($filter_gmo_free)     {$sql_query .= " AND gmo_free = 1";}
+    if($filter_gluten_free)  {$sql_query .= " AND gluten_free = 1";}
+    if($filter_lactose_free) {$sql_query .= " AND lactose_free = 1";}
+    if($filter_vegan)        {$sql_query .= " AND vegan = 1";}
+    if($filter_vegetarian)   {$sql_query .= " AND vegetarian = 1";}
+    if($filter_easy_diff)    {$sql_query .= " AND difficulty_level = 'Easy'";}
+    if($filter_medium_diff)  {$sql_query .= " AND difficulty_level = 'Medium'";}
+    if($filter_hard_diff)    {$sql_query .= " AND difficulty_level = 'Hard'";}
 
     $params = [$userId];
     $types  = "i";
