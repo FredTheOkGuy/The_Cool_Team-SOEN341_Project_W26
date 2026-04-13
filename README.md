@@ -1,78 +1,169 @@
-# Project Name
+# MealMajor
 
-*MealMajor*
-
-## Course Information
-**Course:** SOEN 341  
-**Semester:** Winter 2026  
+**Course:** SOEN 341 — Software Process & Practices
+**Semester:** Winter 2026
 
 ---
 
 ## Team Members
 
 | Name | Student ID | Role |
-|-----|-----------|------|
-| Marie Ella Cambay    |  40284457         |  Full Stack Developper    |
-| Charles Dahan   |  40263717         | Jr. Full Stackl Developper     |
-|  Ilyess Diyane   |   40316188        |  Jr. Full Stack Developper    |
-| Frederic Gagne   | 40278058          | Full Stack Developper     |
-| Pablo Hernandez    | 40246914          | Sr. Full Stack Developper     |
-| Quetin Malichecq-Laroche    | 40285143          |  Scrum Master & Full Stack Developper    | 
+|------|-----------|------|
+| Marie Ella Cambay | 40284457 | Full Stack Developer |
+| Charles Dahan | 40263717 | Jr. Full Stack Developer |
+| Ilyess Diyane | 40316188 | Jr. Full Stack Developer |
+| Frederic Gagne | 40278058 | Full Stack Developer |
+| Pablo Hernandez | 40246914 | Sr. Full Stack Developer |
+| Quentin Malichecq-Laroche | 40285143 | Scrum Master & Full Stack Developer |
 
 ---
 
 ## Project Description
 
-This project is a web application designed to help students plan meals, manage groceries, and discover easy recipes based on their preferences and constraints.
-
-The application aims to simplify meal planning by taking into account dietary restrictions, allergies, time availability, and budget considerations.
+MealMajor is a PHP/MySQL web application that helps students plan meals, manage recipes, and track calorie intake. It accounts for dietary restrictions, allergies, preparation time, and budget to simplify daily meal planning. The app integrates the Claude (Anthropic) AI API to generate recipe suggestions from user-provided ingredients and deliver personalized calorie tips.
 
 ---
 
-## Core Features
+## Features
 
-### 1. User Account Management ✅ Completed
-- User registration and login
-- Profile management
+### User Account Management ✅
+- Registration and login with session management
+- Profile page for managing:
   - Dietary preferences
-  - Allergies and restrictions
+  - Allergies and food restrictions
+  - Daily calorie goal
 
----
-
-### 2. Recipe Management ✅ Completed
+### Recipe Management ✅
 - Create, edit, and delete recipes
-- Recipe attributes:
-  - Ingredients
-  - Preparation time
-  - Preparation steps
-  - Estimated cost
-- Search recipes
-- Filter recipes by:
-  - Time
-  - Difficulty
-  - Cost
-  - Dietary tags
+- Each recipe includes ingredients, preparation steps, prep/cook time, estimated cost, difficulty level, and dietary tags
+- Search recipes by name
+- Filter by prep time, cook time, difficulty, cost, and dietary tags
+- Sort recipes by name, time, or cost
+
+### Weekly Meal Planner ✅
+- View a weekly meal schedule as a grid
+- Assign any saved recipe to a day of the week and meal type (breakfast, lunch, dinner, snack)
+- Edit or remove scheduled meals
+- Prevents duplicate recipes in the same week
+
+### Calorie Tracker ✅
+- Track daily calorie intake against a user-defined goal
+- Manually add or remove calorie entries
+- AI-generated motivational tips via the Claude API
+
+### AI Recipe Generator ✅
+- User inputs available ingredients and a meal type
+- Claude API generates a complete recipe suggestion
+- Generated recipes can be saved directly to the user's recipe list
 
 ---
 
-### 3. Weekly Meal Planner ✅ Completed
-- Create a weekly meal plan
-- View meals in a weekly grid
-- Assign recipes by:
-  - Day of the week
-  - Meal type (breakfast, lunch, dinner, snack)
-- Edit or remove meals
-- Prevent duplicate recipes within the same week
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | PHP 8.x |
+| Database | MySQL |
+| Frontend | HTML, CSS, JavaScript |
+| AI Integration | Anthropic PHP SDK (`anthropic-ai/sdk`) |
+| HTTP Client | Symfony HttpClient + nyholm/psr7 |
+| CSRF Protection | paragonie/anti-csrf |
+| Validation | respect/validation |
+| Testing | PHPUnit 9 |
+| Local Dev | Laragon or XAMPP |
+| CI/CD | GitHub Actions |
 
 ---
 
-## Additional Planned Features
+## Repository Structure
 
-### Calorie Tracker ✅ Completed
-- Track daily and weekly calorie intake
-- Associate calorie values with recipes
-- Provide an overview of nutritional consumption
+```
+/
+├── project/                  # Main application source
+│   ├── config/               # Database connection and API configuration
+│   ├── public/               # Publicly accessible static assets
+│   │   ├── css/              # Stylesheets (one per page)
+│   │   ├── js/               # JavaScript files
+│   │   └── images/           # Image assets
+│   ├── src/
+│   │   ├── controllers/      # Form handling and business logic
+│   │   ├── models/           # Database queries and API wrappers
+│   │   └── views/            # HTML/PHP front-end pages
+│   └── index.php             # Entry point (login page)
+├── database/
+│   ├── init.sql              # Schema used by CI (Docker MySQL)
+│   └── user_db_v5.sql        # Full database dump for local setup
+├── tests/                    # PHPUnit test suite
+├── vendor/                   # Composer dependencies
+├── docs/                     # Project documentation and sprint meeting minutes
+├── composer.json
+├── phpunit.xml
+└── .github/workflows/        # GitHub Actions CI pipeline
+```
 
-### Ingredient-Based Recipe Suggestions ✅ Completed
-- Users enter available ingredients
-- The system suggests recipes that can be prepared using those ingredients
+---
+
+## Local Setup
+
+### Prerequisites
+- PHP 8.x
+- MySQL (via Laragon or XAMPP)
+- Composer
+
+### Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd The_Cool_Team-SOEN341_Project_W26
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Set up the database**
+   - Open phpMyAdmin (or your MySQL client)
+   - Create a database named `users_db`
+   - Import `database/user_db_v5.sql`
+
+4. **Configure the database connection**
+   - Open `project/config/login_page_config.php`
+   - Update `$host`, `$user`, `$password`, and `$database` to match your local MySQL setup
+
+5. **Configure the Anthropic API key**
+   - Open (or create) `project/config/api_config.php`
+   - Add your Anthropic API key as a constant
+
+6. **Start your local server**
+   - Launch Laragon or XAMPP and point the web root to the project root
+   - Navigate to the project URL in your browser
+
+---
+
+## Running Tests
+
+```bash
+composer install
+vendor/bin/phpunit
+```
+
+On Windows (Laragon):
+```bash
+vendor\bin\phpunit
+```
+
+Tests are located in `tests/` and use a sandbox subprocess pattern — no live database connection is required to run them.
+
+---
+
+## CI/CD
+
+GitHub Actions runs on every push and pull request (all branches). The pipeline:
+1. Spins up a MySQL 8.0 Docker container and initializes it with `database/init.sql`
+2. Validates PHP syntax across all `.php` files
+3. Runs `composer install`
+4. Executes the PHPUnit test suite
+
+See `.github/workflows/ci.yml` for the full configuration.
