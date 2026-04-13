@@ -8,8 +8,10 @@ $userId = $_SESSION['user_id'];
 
 $recipe_id = $_GET['recipe_id'] ?? null;
 
+$recipes_url = BASE_URL . '/src/views/recipes.php';
+
 if (!$recipe_id) {
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
+    header('Location: ' . $recipes_url);
     exit;
 }
 
@@ -33,7 +35,7 @@ if(isset($_POST['save_recipe'])) {
 
     editRecipe($userId, $recipe_id, $recipe_name, $recipe_description, $prep_time, $cook_time, $difficulty, $calories, $gmo_free, $gluten_free, $lactose_free, $vegan, $vegetarian, $meal_type, $recipe_ingredients, $recipe_steps);
 
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
+    header('Location: ' . $recipes_url);
     exit;
 }
 
@@ -42,7 +44,7 @@ if(isset($_POST['save_recipe'])) {
 $recipe = getRecipeInformation($recipe_id, $userId);
 
 if (!$recipe) {
-    header('Location: ' . BASE_URL . '/src/views/recipes.php');
+    header('Location: ' . $recipes_url);
     exit;
 }
 
