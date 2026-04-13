@@ -49,7 +49,7 @@ $meals_result = getMealsForSchedule($conn, $userId); //find every meal
 $schedule = [];
 $days      = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 $meal_types = ['Breakfast','Lunch','Dinner','Snack'];
-foreach ($days as $d) $schedule[$d] = [];
+foreach ($days as $d) {$schedule[$d] = [];}
 while ($row = $meals_result->fetch_assoc()) {
     $schedule[$row['day_of_week']][] = $row;
 }
@@ -60,7 +60,7 @@ $user_recipes->bind_param('i', $userId);
 $user_recipes->execute();
 $recipes_result = $user_recipes->get_result();
 $user_recipe_list = [];
-while ($r = $recipes_result->fetch_assoc()) $user_recipe_list[] = $r;
+while ($r = $recipes_result->fetch_assoc()) {$user_recipe_list[] = $r;}
 
 date_default_timezone_set('America/Toronto'); //Adjusted for mtl time (mtl not available but whatever)
 $today = date('l');
