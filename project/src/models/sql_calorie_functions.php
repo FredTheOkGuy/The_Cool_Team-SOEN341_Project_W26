@@ -29,7 +29,9 @@ function checkCalories($conn, $userId, $today_date, $scheduled_calories) {
     $existing_row = $check_today_row->get_result()->fetch_assoc();
 
     if (!$existing_row) {
-        $insert_row = $conn->prepare("INSERT INTO user_daily_calories (user_id, log_date, total_calories) VALUES (?, ?, ?)");
+        $insert_row = $conn->prepare(
+            "INSERT INTO user_daily_calories (user_id, log_date, total_calories) VALUES (?, ?, ?)"
+        );
         $insert_row->bind_param('isi', $userId, $today_date, $scheduled_calories['total']);
         $insert_row->execute();
     } elseif ($existing_row['log_date'] !== $today_date) {
